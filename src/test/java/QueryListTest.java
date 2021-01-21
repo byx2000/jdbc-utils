@@ -59,4 +59,47 @@ public class QueryListTest
 
         assertNull(users);
     }
+
+    @Test
+    public void test7()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", User.class);
+
+        assertNotNull(users);
+        assertEquals(5, users.size());
+    }
+
+    @Test
+    public void test8()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = ?", User.class, "456");
+
+        assertNotNull(users);
+        assertEquals(2, users.size());
+    }
+
+    @Test
+    public void test9()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = 10086", User.class);
+
+        assertNotNull(users);
+        assertEquals(0, users.size());
+    }
+
+    @Test
+    public void test10()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM", User.class);
+
+        assertNull(users);
+    }
+
+    @Test
+    public void test11()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", User.class, "aaa", "123");
+
+        assertNull(users);
+    }
 }

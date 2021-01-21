@@ -135,6 +135,11 @@ public class JdbcTemplate
         return query(sql, new ListResultSetMapper<>(rowMapper), params);
     }
 
+    public static <T> List<T> queryList(String sql, Class<T> type, Object... params)
+    {
+        return query(sql, new ListResultSetMapper<>(new BeanRowMapper<>(type)), params);
+    }
+
     public static <T> T queryValue(String sql, Object... params)
     {
         return query(sql, new SingleColumnResultSetMapper<>(), params);
