@@ -1,4 +1,4 @@
-package com.byx;
+package com.byx.jdbc.mapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;

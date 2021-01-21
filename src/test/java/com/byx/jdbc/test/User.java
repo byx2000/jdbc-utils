@@ -1,3 +1,5 @@
+package com.byx.jdbc.test;
+
 public class User
 {
     private Integer id;
@@ -37,6 +39,6 @@ public class User
     @Override
     public String toString()
     {
-        return "User{" + "id=" + id + ", username='" + username + '\'' + ", password='" + password + '\'' + '}';
+        return "com.byx.test.User{" + "id=" + id + ", username='" + username + '\'' + ", password='" + password + '\'' + '}';
     }
 }

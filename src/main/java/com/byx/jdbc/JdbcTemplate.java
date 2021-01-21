@@ -1,4 +1,6 @@
-package com.byx;
+package com.byx.jdbc;
+
+import com.byx.jdbc.mapper.*;
 
 import java.io.InputStream;
 import java.sql.*;
