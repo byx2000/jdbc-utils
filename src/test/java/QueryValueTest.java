@@ -17,10 +17,34 @@ public class QueryValueTest
     @Test
     public void test2()
     {
-        String password = "456";
-        Integer count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users WHERE password = ?", password);
+        Integer count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users WHERE password = ?", "456");
 
         assertNotNull(count);
         assertEquals(2, count);
+    }
+
+    @Test
+    public void test3()
+    {
+        Integer count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users WHERE password = ?", "10086");
+
+        assertNotNull(count);
+        assertEquals(0, count);
+    }
+
+    @Test
+    public void test4()
+    {
+        Integer count = JdbcTemplate.queryValue("SELECT COUNT(*) FRAME users");
+
+        assertNull(count);
+    }
+
+    @Test
+    public void test5()
+    {
+        Integer count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users", 3);
+
+        assertNull(count);
     }
 }

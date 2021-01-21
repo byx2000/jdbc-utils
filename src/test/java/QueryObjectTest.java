@@ -26,4 +26,28 @@ public class QueryObjectTest
         assertEquals("bbb", user.getUsername());
         assertEquals("456", user.getPassword());
     }
+
+    @Test
+    public void test3()
+    {
+        User user = JdbcTemplate.queryObject("SELECT * FROM users WHERE id = 1001", User.class);
+
+        assertNull(user);
+    }
+
+    @Test
+    public void test4()
+    {
+        User user = JdbcTemplate.queryObject("SELECT * FROM users WEAR id = 2", User.class);
+
+        assertNull(user);
+    }
+
+    @Test
+    public void test5()
+    {
+        User user = JdbcTemplate.queryObject("SELECT * FROM users WEAR id = 2", User.class, 2);
+
+        assertNull(user);
+    }
 }

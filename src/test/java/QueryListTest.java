@@ -20,12 +20,43 @@ public class QueryListTest
     @Test
     public void test2()
     {
-        String password = "456";
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = ?",
-                new BeanRowMapper<>(User.class),
-                password);
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = ?", new BeanRowMapper<>(User.class), "456");
 
         assertNotNull(users);
         assertEquals(2, users.size());
+    }
+
+    @Test
+    public void test3()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = 10086", new BeanRowMapper<>(User.class));
+
+        assertNotNull(users);
+        assertEquals(0, users.size());
+    }
+
+    @Test
+    public void test4()
+    {
+        List<String> usernames = JdbcTemplate.queryList("SELECT * FROM users", rs -> rs.getString("username"));
+
+        assertNotNull(usernames);
+        assertEquals(5, usernames.size());
+    }
+
+    @Test
+    public void test5()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class));
+
+        assertNull(users);
+    }
+
+    @Test
+    public void test6()
+    {
+        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa");
+
+        assertNull(users);
     }
 }
