@@ -40,6 +40,13 @@ public class UpdateTest
     @Test
     public void test2()
     {
+        int count = JdbcTemplate.update("INSECT INTO users(username1, password) VALUES(?, ?)");
+        assertEquals(-1, count);
+    }
+
+    @Test
+    public void test3()
+    {
         int count = JdbcTemplate.update("INSERT INTO users(username1, password) VALUES(?, ?)", "byx", "123456");
         assertEquals(-1, count);
     }
