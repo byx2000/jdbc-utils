@@ -18,21 +18,37 @@ import java.util.Properties;
  */
 public class JdbcTemplate
 {
+    /**
+     * 连接字符串
+     */
     private static String url;
+
+    /**
+     * 用户名
+     */
     private static String username;
+
+    /**
+     * 密码
+     */
     private static String password;
 
     static
     {
         try
         {
+            // 读取resources目录下的db.properties文件
             InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties");
             Properties properties = new Properties();
             properties.load(in);
+
+            // 读取驱动类名、连接字符串、用户名和密码
             String driver = properties.getProperty("jdbc.driver");
             url = properties.getProperty("jdbc.url");
             username = properties.getProperty("jdbc.username");
             password = properties.getProperty("jdbc.password");
+
+            // 加载驱动
             Class.forName(driver);
         }
         catch (Exception e)
@@ -41,75 +57,38 @@ public class JdbcTemplate
         }
     }
 
+    /**
+     * 获取连接
+     * @return 连接
+     * @throws SQLException 异常
+     */
     private static Connection getConnection() throws SQLException
     {
         return DriverManager.getConnection(url, username, password);
     }
 
+    /**
+     * 释放资源
+     * @param rs 结果集
+     * @param stmt 语句
+     * @param conn 连接
+     */
     private static void close(ResultSet rs, Statement stmt, Connection conn)
     {
-        if (rs != null)
-        {
-            try
-            {
-                rs.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        if (stmt != null)
-        {
-            try
-            {
-                stmt.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        if (conn != null)
-        {
-            try
-            {
-                conn.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+        if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
     }
 
+    /**
+     * 释放资源
+     * @param stmt 语句
+     * @param conn 连接
+     */
     private static void close(Statement stmt, Connection conn)
     {
-        if (stmt != null)
-        {
-            try
-            {
-                stmt.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        if (conn != null)
-        {
-            try
-            {
-                conn.close();
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
+        if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
     }
 
     /**
