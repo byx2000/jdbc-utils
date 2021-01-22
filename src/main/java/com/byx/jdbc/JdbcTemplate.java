@@ -113,7 +113,7 @@ public class JdbcTemplate
     /**
      * 查询
      * @param sql sql语句
-     * @param resultSetMapper 将ResultSet处理成一个结果
+     * @param resultSetMapper 结果集转换器
      * @param params sql参数
      * @param <T> 结果类型
      * @return 结果，若出错则返回null
@@ -144,7 +144,7 @@ public class JdbcTemplate
     /**
      * 查询列表
      * @param sql sql语句
-     * @param rowMapper 将一行ResultSet处理成一个结果
+     * @param rowMapper 行转换器
      * @param params sql参数
      * @param <T> 列表元素类型
      * @return 结果列表，若出错则返回null
@@ -168,28 +168,42 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询单列
-     * @param sql sql语句
-     * @param params sql参数
-     * @param <T> 结果类型
-     * @return 结果，若出错则返回null
-     */
-    public static <T> T queryValue(String sql, Object... params)
-    {
-        return query(sql, new SingleColumnResultSetMapper<>(), params);
-    }
-
-    /**
-     * 查询单行
+     * 查询单个值
      * @param sql sql语句
      * @param type 结果类型
      * @param params sql参数
      * @param <T> 结果类型
      * @return 结果，若出错则返回null
      */
-    public static <T> T queryObject(String sql, Class<T> type, Object... params)
+    public static <T> T querySingleValue(String sql, Class<T> type, Object... params)
     {
-        return query(sql, new SingleRowResultSetMapper<>(type), params);
+        return query(sql, new SingleRowResultSetMapper<>(new SingleColumnRowMapper<>(type)), params);
+    }
+
+    /**
+     * 查询单行
+     * @param sql sql语句
+     * @param rowMapper 行转换器
+     * @param params sql参数
+     * @param <T> 结果类型
+     * @return 结果，若出错则返回null
+     */
+    public static <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params)
+    {
+        return query(sql, new SingleRowResultSetMapper<>(rowMapper), params);
+    }
+
+    /**
+     * 查询单行
+     * @param sql sql语句
+     * @param type JavaBean类型
+     * @param params sql参数
+     * @param <T> JavaBean类型
+     * @return 结果JavaBean
+     */
+    public static <T> T querySingleRow(String sql, Class<T> type, Object... params)
+    {
+        return querySingleRow(sql, new BeanRowMapper<>(type), params);
     }
 
     /**

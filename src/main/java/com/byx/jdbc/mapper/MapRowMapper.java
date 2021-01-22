@@ -5,6 +5,9 @@ import java.sql.ResultSetMetaData;
 import java.util.Hashtable;
 import java.util.Map;
 
+/**
+ * 将一行数据转换成Map
+ */
 public class MapRowMapper implements RowMapper<Map<String, Object>>
 {
     @Override

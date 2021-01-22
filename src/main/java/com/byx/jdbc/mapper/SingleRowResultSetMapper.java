@@ -2,18 +2,22 @@ package com.byx.jdbc.mapper;
 
 import java.sql.ResultSet;
 
+/**
+ * 转换只有一行的结果集
+ * @param <T> 结果类型
+ */
 public class SingleRowResultSetMapper<T> implements ResultSetMapper<T>
 {
-    private final Class<T> type;
+    private final RowMapper<T> rowMapper;
 
-    public SingleRowResultSetMapper(Class<T> type)
+    public SingleRowResultSetMapper(RowMapper<T> rowMapper)
     {
-        this.type = type;
+        this.rowMapper = rowMapper;
     }
 
     @Override
     public T map(ResultSet rs) throws Exception
     {
-        return new BeanRowMapper<>(type).map(rs);
+        return rowMapper.map(rs);
     }
 }

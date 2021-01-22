@@ -2,6 +2,10 @@ package com.byx.jdbc.mapper;
 
 import java.sql.ResultSet;
 
+/**
+ * 将一行数据转换成JavaBean
+ * @param <T> 结果类型
+ */
 public class BeanRowMapper<T> implements RowMapper<T>
 {
     private final Class<T> type;

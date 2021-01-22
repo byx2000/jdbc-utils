@@ -4,6 +4,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 将结果集转换成列表
+ * @param <T> 列表元素类型
+ */
 public class ListResultSetMapper<T> implements ResultSetMapper<List<T>>
 {
     private final RowMapper<T> rowMapper;

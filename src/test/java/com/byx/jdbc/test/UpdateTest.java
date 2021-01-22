@@ -20,10 +20,12 @@ public class UpdateTest
         assertNotNull(users);
         assertEquals(6, users.size());
 
-        count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users");
+        count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(6, count);
 
-        User user = JdbcTemplate.queryObject("SELECT * FROM users WHERE username = ? AND password = ?", User.class, "byx", "123456");
+        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?",
+                User.class,
+                "byx", "123456");
         assertNotNull(user);
         assertEquals("byx", user.getUsername());
         assertEquals("123456", user.getPassword());
@@ -31,11 +33,11 @@ public class UpdateTest
         count = JdbcTemplate.update("DELETE FROM users WHERE username = 'byx' AND password = '123456'");
         assertEquals(1, count);
 
-        users = JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));
+        users = JdbcTemplate.queryList("SELECT * FROM users", User.class);
         assertNotNull(users);
         assertEquals(5, users.size());
 
-        count = JdbcTemplate.queryValue("SELECT COUNT(*) FROM users");
+        count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(5, count);
     }
 
