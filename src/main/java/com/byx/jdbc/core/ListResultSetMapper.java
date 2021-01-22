@@ -1,4 +1,4 @@
-package com.byx.jdbc.mapper;
+package com.byx.jdbc.core;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
