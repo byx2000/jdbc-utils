@@ -18,6 +18,7 @@ public class SingleRowResultSetMapper<T> implements ResultSetMapper<T>
     @Override
     public T map(ResultSet rs) throws Exception
     {
+        if (!rs.isBeforeFirst()) return null;
         return rowMapper.map(rs);
     }
 }

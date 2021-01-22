@@ -2,6 +2,7 @@ package com.byx.jdbc;
 
 import com.byx.jdbc.core.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.List;
@@ -18,19 +19,8 @@ import java.util.Properties;
  */
 public class JdbcTemplate
 {
-    /**
-     * 连接字符串
-     */
     private static final String url;
-
-    /**
-     * 用户名
-     */
     private static final String username;
-
-    /**
-     * 密码
-     */
     private static final String password;
 
     static
@@ -51,17 +41,20 @@ public class JdbcTemplate
             // 加载驱动
             Class.forName(driver);
         }
-        catch (Exception e)
+        catch (NullPointerException | IOException e)
         {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("找不到db.properties文件，请在resources目录下创建db.properties文件，并写入数据库配置", e);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException("找不到数据库驱动类", e);
         }
     }
 
     /**
      * 获取连接
-     * @return 连接
-     * @throws SQLException 异常
+     * @return 创建的连接
+     * @throws SQLException 来自JDBC的异常
      */
     public static Connection getConnection() throws SQLException
     {
@@ -97,8 +90,8 @@ public class JdbcTemplate
      * @param conn 连接
      * @param sql sql语句
      * @param params sql参数
-     * @return PreparedStatement对象
-     * @throws SQLException 异常
+     * @return 创建的PreparedStatement对象
+     * @throws SQLException 来自JDBC的异常
      */
     public static PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException
     {
@@ -111,12 +104,17 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询
+     * 查询数据库并转换结果集。
+     * 用户可自定义结果集转换器。
+     * 用户也可使用预定义的结果集转换器。
+     * @see ResultSetMapper
+     * @see ListResultSetMapper
+     * @see SingleRowResultSetMapper
      * @param sql sql语句
      * @param resultSetMapper 结果集转换器
      * @param params sql参数
-     * @param <T> 结果类型
-     * @return 结果，若出错则返回null
+     * @param <T> resultSetMapper返回的结果类型
+     * @return 成功则返回转换结果，失败则抛出RuntimeException，结果为空则返回空列表
      */
     public static <T> T query(String sql, ResultSetMapper<T> resultSetMapper, Object... params)
     {
@@ -132,8 +130,7 @@ public class JdbcTemplate
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
         finally
         {
@@ -142,12 +139,18 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询列表
+     * 查询数据库，对结果集的每一行进行转换，然后将所有行封装成列表。
+     * 用户可自定义行转换器。
+     * 用户也可使用预定义的行转换器。
+     * @see RowMapper
+     * @see BeanRowMapper
+     * @see MapRowMapper
+     * @see SingleColumnRowMapper
      * @param sql sql语句
      * @param rowMapper 行转换器
      * @param params sql参数
-     * @param <T> 列表元素类型
-     * @return 结果列表，若出错则返回null
+     * @param <T> rowMapper返回的结果类型
+     * @return 成功则返回结果列表，失败则抛出RuntimeException，结果为空则返回空列表
      */
     public static <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params)
     {
@@ -155,12 +158,12 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询列表
+     * 查询数据库，将结果集的每一行转换成JavaBean，然后将所有行封装成列表。
      * @param sql sql语句
-     * @param type 列表元素类型
+     * @param type JavaBean类型
      * @param params sql参数
-     * @param <T> 列表元素类型
-     * @return 结果列表，若出错则返回null
+     * @param <T> JavaBean类型
+     * @return 成功则返回结果列表，失败则抛出RuntimeException，结果为空则返回空列表
      */
     public static <T> List<T> queryList(String sql, Class<T> type, Object... params)
     {
@@ -168,12 +171,13 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询单个值
+     * 查询数据库，返回结果集中的单个值。
+     * 如果结果集中有多个值，则只返回第一行第一列的值。
      * @param sql sql语句
      * @param type 结果类型
      * @param params sql参数
      * @param <T> 结果类型
-     * @return 结果，若出错则返回null
+     * @return 成功则返回结果值，失败则抛出RuntimeException，结果为空则返回null
      */
     public static <T> T querySingleValue(String sql, Class<T> type, Object... params)
     {
@@ -181,12 +185,19 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询单行
+     * 查询数据库，返回结果集中的单行数据。
+     * 如果结果集中有多行数据，则只返回第一行数据。
+     * 用户可自定义行转换器。
+     * 用户也可使用预定义的行转换器。
+     * @see RowMapper
+     * @see BeanRowMapper
+     * @see MapRowMapper
+     * @see SingleColumnRowMapper
      * @param sql sql语句
      * @param rowMapper 行转换器
      * @param params sql参数
-     * @param <T> 结果类型
-     * @return 结果，若出错则返回null
+     * @param <T> rowMapper返回的结果类型
+     * @return 成功则返回结果，失败则抛出RuntimeException，结果为空则返回null
      */
     public static <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params)
     {
@@ -194,12 +205,12 @@ public class JdbcTemplate
     }
 
     /**
-     * 查询单行
+     * 查询数据库，将结果集中的单行数据转换成JavaBean。
      * @param sql sql语句
      * @param type JavaBean类型
      * @param params sql参数
      * @param <T> JavaBean类型
-     * @return 结果JavaBean
+     * @return 成功则返回结果，失败则抛出RuntimeException，结果为空则返回null
      */
     public static <T> T querySingleRow(String sql, Class<T> type, Object... params)
     {
@@ -207,10 +218,10 @@ public class JdbcTemplate
     }
 
     /**
-     * 更新操作
+     * 更新数据库，返回影响行数
      * @param sql sql语句
      * @param params sql参数
-     * @return 影响行数，若出错则返回-1
+     * @return 成功则返回影响行数，失败则抛出RuntimeException
      */
     public static int update(String sql, Object... params)
     {
@@ -224,8 +235,7 @@ public class JdbcTemplate
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return -1;
+            throw new RuntimeException(e);
         }
         finally
         {

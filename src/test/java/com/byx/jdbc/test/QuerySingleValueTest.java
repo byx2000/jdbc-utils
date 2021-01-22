@@ -41,18 +41,35 @@ public class QuerySingleValueTest
     @Test
     public void test4()
     {
-        Integer count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FRAME users", Integer.class);
-
-        assertNull(count);
+        assertThrows(RuntimeException.class,
+                () -> JdbcTemplate.querySingleValue("SELECT COUNT(*) FRAME users",
+                        Integer.class));
     }
 
     @Test
     public void test5()
     {
-        Integer count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users",
-                Integer.class,
-                3);
+        assertThrows(RuntimeException.class,
+                () -> JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users",
+                        Integer.class,
+                        3));
+    }
 
-        assertNull(count);
+    @Test
+    public void test6()
+    {
+        String username = JdbcTemplate.querySingleValue("SELECT username FROM users WHERE id = 1",
+                String.class);
+
+        assertEquals("aaa", username);
+    }
+
+    @Test
+    public void test7()
+    {
+        String username = JdbcTemplate.querySingleValue("SELECT username FROM users WHERE id = 1001",
+                String.class);
+
+        assertNull(username);
     }
 }

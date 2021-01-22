@@ -1,7 +1,7 @@
 package com.byx.jdbc.test;
 
-import com.byx.jdbc.core.BeanRowMapper;
 import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.core.BeanRowMapper;
 import com.byx.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 
@@ -47,20 +47,18 @@ public class QueryListTest
         assertEquals(5, usernames.size());
     }
 
-    @Test
+    @Test()
     public void test5()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class));
-
-        assertNull(users);
+        assertThrows(RuntimeException.class,
+                () -> JdbcTemplate.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
     }
 
     @Test
     public void test6()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa");
-
-        assertNull(users);
+        assertThrows(RuntimeException.class,
+                () -> JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
     }
 
     @Test
@@ -93,16 +91,14 @@ public class QueryListTest
     @Test
     public void test10()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM", User.class);
-
-        assertNull(users);
+        assertThrows(RuntimeException.class,
+                () ->JdbcTemplate.queryList("SELECT * FROM", User.class));
     }
 
     @Test
     public void test11()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", User.class, "aaa", "123");
-
-        assertNull(users);
+        assertThrows(RuntimeException.class,
+                () -> JdbcTemplate.queryList("SELECT * FROM users", User.class, "aaa", "123"));
     }
 }
