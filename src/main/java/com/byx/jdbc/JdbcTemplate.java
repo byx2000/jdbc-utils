@@ -21,17 +21,17 @@ public class JdbcTemplate
     /**
      * 连接字符串
      */
-    private static String url;
+    private static final String url;
 
     /**
      * 用户名
      */
-    private static String username;
+    private static final String username;
 
     /**
      * 密码
      */
-    private static String password;
+    private static final String password;
 
     static
     {
@@ -54,6 +54,7 @@ public class JdbcTemplate
         catch (Exception e)
         {
             e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -62,7 +63,7 @@ public class JdbcTemplate
      * @return 连接
      * @throws SQLException 异常
      */
-    private static Connection getConnection() throws SQLException
+    public static Connection getConnection() throws SQLException
     {
         return DriverManager.getConnection(url, username, password);
     }
@@ -73,7 +74,7 @@ public class JdbcTemplate
      * @param stmt 语句
      * @param conn 连接
      */
-    private static void close(ResultSet rs, Statement stmt, Connection conn)
+    public static void close(ResultSet rs, Statement stmt, Connection conn)
     {
         if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
         if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
@@ -85,10 +86,28 @@ public class JdbcTemplate
      * @param stmt 语句
      * @param conn 连接
      */
-    private static void close(Statement stmt, Connection conn)
+    public static void close(Statement stmt, Connection conn)
     {
         if (stmt != null) try { stmt.close(); } catch (SQLException ignored) {}
         if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
+    }
+
+    /**
+     * 创建语句
+     * @param conn 连接
+     * @param sql sql语句
+     * @param params sql参数
+     * @return PreparedStatement对象
+     * @throws SQLException 异常
+     */
+    public static PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException
+    {
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        for (int i = 0; i < params.length; ++i)
+        {
+            stmt.setObject(i + 1, params[i]);
+        }
+        return stmt;
     }
 
     /**
@@ -107,13 +126,7 @@ public class JdbcTemplate
         try
         {
             conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-
-            for (int i = 0; i < params.length; ++i)
-            {
-                stmt.setObject(i + 1, params[i]);
-            }
-
+            stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
             return resultSetMapper.map(rs);
         }
@@ -192,13 +205,7 @@ public class JdbcTemplate
         try
         {
             conn = getConnection();
-            stmt = conn.prepareStatement(sql);
-
-            for (int i = 0; i < params.length; ++i)
-            {
-                stmt.setObject(i + 1, params[i]);
-            }
-
+            stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         }
         catch (Exception e)
