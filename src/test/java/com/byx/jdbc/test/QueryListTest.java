@@ -1,6 +1,6 @@
 package com.byx.jdbc.test;
 
-import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.JdbcUtils;
 import com.byx.jdbc.core.BeanRowMapper;
 import com.byx.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ public class QueryListTest
     @Test
     public void test1()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));
 
         assertNotNull(users);
         assertEquals(5, users.size());
@@ -23,7 +23,7 @@ public class QueryListTest
     @Test
     public void test2()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = ?", new BeanRowMapper<>(User.class), "456");
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = ?", new BeanRowMapper<>(User.class), "456");
 
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -32,7 +32,7 @@ public class QueryListTest
     @Test
     public void test3()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = 10086", new BeanRowMapper<>(User.class));
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = 10086", new BeanRowMapper<>(User.class));
 
         assertNotNull(users);
         assertEquals(0, users.size());
@@ -41,7 +41,7 @@ public class QueryListTest
     @Test
     public void test4()
     {
-        List<String> usernames = JdbcTemplate.queryList("SELECT * FROM users", rs -> rs.getString("username"));
+        List<String> usernames = JdbcUtils.queryList("SELECT * FROM users", rs -> rs.getString("username"));
 
         assertNotNull(usernames);
         assertEquals(5, usernames.size());
@@ -51,20 +51,20 @@ public class QueryListTest
     public void test5()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
+                () -> JdbcUtils.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
     }
 
     @Test
     public void test6()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
+                () -> JdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
     }
 
     @Test
     public void test7()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", User.class);
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users", User.class);
 
         assertNotNull(users);
         assertEquals(5, users.size());
@@ -73,7 +73,7 @@ public class QueryListTest
     @Test
     public void test8()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = ?", User.class, "456");
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = ?", User.class, "456");
 
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -82,7 +82,7 @@ public class QueryListTest
     @Test
     public void test9()
     {
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users WHERE password = 10086", User.class);
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = 10086", User.class);
 
         assertNotNull(users);
         assertEquals(0, users.size());
@@ -92,13 +92,13 @@ public class QueryListTest
     public void test10()
     {
         assertThrows(RuntimeException.class,
-                () ->JdbcTemplate.queryList("SELECT * FROM", User.class));
+                () -> JdbcUtils.queryList("SELECT * FROM", User.class));
     }
 
     @Test
     public void test11()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.queryList("SELECT * FROM users", User.class, "aaa", "123"));
+                () -> JdbcUtils.queryList("SELECT * FROM users", User.class, "aaa", "123"));
     }
 }

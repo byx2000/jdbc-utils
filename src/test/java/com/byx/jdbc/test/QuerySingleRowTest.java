@@ -1,6 +1,6 @@
 package com.byx.jdbc.test;
 
-import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.JdbcUtils;
 import com.byx.jdbc.core.BeanRowMapper;
 import com.byx.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ public class QuerySingleRowTest
     @Test
     public void test1()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = 2",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 2",
                 new BeanRowMapper<>(User.class));
 
         assertNotNull(user);
@@ -24,7 +24,7 @@ public class QuerySingleRowTest
     @Test
     public void test2()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = ?",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = ?",
                 new BeanRowMapper<>(User.class),
                 "2");
 
@@ -37,7 +37,7 @@ public class QuerySingleRowTest
     @Test
     public void test3()
     {
-        String username = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = 2",
+        String username = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 2",
                 rs -> rs.getString("username"));
 
         assertNotNull(username);
@@ -47,7 +47,7 @@ public class QuerySingleRowTest
     @Test
     public void test4()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = 1001",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 1001",
                 new BeanRowMapper<>(User.class));
         assertNull(user);
     }
@@ -56,7 +56,7 @@ public class QuerySingleRowTest
     public void test5()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleRow("SELECT * FROM users WEAR id = 2",
+                () -> JdbcUtils.querySingleRow("SELECT * FROM users WEAR id = 2",
                         new BeanRowMapper<>(User.class)));
     }
 
@@ -64,7 +64,7 @@ public class QuerySingleRowTest
     public void test6()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleRow("SELECT * FROM users WEAR id = 2",
+                () -> JdbcUtils.querySingleRow("SELECT * FROM users WEAR id = 2",
                         new BeanRowMapper<>(User.class),
                         2));
     }
@@ -72,7 +72,7 @@ public class QuerySingleRowTest
     @Test
     public void test7()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = 2",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 2",
                 User.class);
 
         assertNotNull(user);
@@ -84,7 +84,7 @@ public class QuerySingleRowTest
     @Test
     public void test8()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = ?",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = ?",
                 User.class,
                 "2");
 
@@ -97,7 +97,7 @@ public class QuerySingleRowTest
     @Test
     public void test9()
     {
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE id = 1001",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 1001",
                 User.class);
 
         assertNull(user);
@@ -107,7 +107,7 @@ public class QuerySingleRowTest
     public void test10()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleRow("SELECT * FROM users WEAR id = 2",
+                () -> JdbcUtils.querySingleRow("SELECT * FROM users WEAR id = 2",
                         User.class));
     }
 
@@ -115,7 +115,7 @@ public class QuerySingleRowTest
     public void test11()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleRow("SELECT * FROM users WEAR id = 2",
+                () -> JdbcUtils.querySingleRow("SELECT * FROM users WEAR id = 2",
                         User.class,
                         2));
     }

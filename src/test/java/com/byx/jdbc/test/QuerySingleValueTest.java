@@ -1,6 +1,6 @@
 package com.byx.jdbc.test;
 
-import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.JdbcUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,7 +10,7 @@ public class QuerySingleValueTest
     @Test
     public void test1()
     {
-        Integer count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
+        Integer count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
 
         assertNotNull(count);
         assertEquals(5, count);
@@ -19,7 +19,7 @@ public class QuerySingleValueTest
     @Test
     public void test2()
     {
-        Integer count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users WHERE password = ?",
+        Integer count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users WHERE password = ?",
                 Integer.class,
                 "456");
 
@@ -30,7 +30,7 @@ public class QuerySingleValueTest
     @Test
     public void test3()
     {
-        Integer count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users WHERE password = ?",
+        Integer count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users WHERE password = ?",
                 Integer.class,
                 "10086");
 
@@ -42,7 +42,7 @@ public class QuerySingleValueTest
     public void test4()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleValue("SELECT COUNT(*) FRAME users",
+                () -> JdbcUtils.querySingleValue("SELECT COUNT(*) FRAME users",
                         Integer.class));
     }
 
@@ -50,7 +50,7 @@ public class QuerySingleValueTest
     public void test5()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users",
+                () -> JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users",
                         Integer.class,
                         3));
     }
@@ -58,7 +58,7 @@ public class QuerySingleValueTest
     @Test
     public void test6()
     {
-        String username = JdbcTemplate.querySingleValue("SELECT username FROM users WHERE id = 1",
+        String username = JdbcUtils.querySingleValue("SELECT username FROM users WHERE id = 1",
                 String.class);
 
         assertEquals("aaa", username);
@@ -67,7 +67,7 @@ public class QuerySingleValueTest
     @Test
     public void test7()
     {
-        String username = JdbcTemplate.querySingleValue("SELECT username FROM users WHERE id = 1001",
+        String username = JdbcUtils.querySingleValue("SELECT username FROM users WHERE id = 1001",
                 String.class);
 
         assertNull(username);

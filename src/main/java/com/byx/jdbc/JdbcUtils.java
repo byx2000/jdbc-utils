@@ -17,7 +17,7 @@ import java.util.Properties;
  * <p>jdbc.username: 用户名</p>
  * <p>jdbc.password: 密码</p>
  */
-public class JdbcTemplate
+public class JdbcUtils
 {
     private static final String url;
     private static final String username;

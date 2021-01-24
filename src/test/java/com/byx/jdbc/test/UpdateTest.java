@@ -1,7 +1,7 @@
 package com.byx.jdbc.test;
 
 import com.byx.jdbc.core.BeanRowMapper;
-import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.JdbcUtils;
 import com.byx.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 
@@ -14,31 +14,31 @@ public class UpdateTest
     @Test
     public void test1()
     {
-        int count = JdbcTemplate.update("INSERT INTO users(username, password) VALUES(?, ?)", "byx", "123456");
+        int count = JdbcUtils.update("INSERT INTO users(username, password) VALUES(?, ?)", "byx", "123456");
         assertEquals(1, count);
 
-        List<User> users = JdbcTemplate.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));
         assertNotNull(users);
         assertEquals(6, users.size());
 
-        count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
+        count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(6, count);
 
-        User user = JdbcTemplate.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?",
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?",
                 User.class,
                 "byx", "123456");
         assertNotNull(user);
         assertEquals("byx", user.getUsername());
         assertEquals("123456", user.getPassword());
 
-        count = JdbcTemplate.update("DELETE FROM users WHERE username = 'byx' AND password = '123456'");
+        count = JdbcUtils.update("DELETE FROM users WHERE username = 'byx' AND password = '123456'");
         assertEquals(1, count);
 
-        users = JdbcTemplate.queryList("SELECT * FROM users", User.class);
+        users = JdbcUtils.queryList("SELECT * FROM users", User.class);
         assertNotNull(users);
         assertEquals(5, users.size());
 
-        count = JdbcTemplate.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
+        count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(5, count);
     }
 
@@ -46,14 +46,14 @@ public class UpdateTest
     public void test2()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.update("INSECT INTO users(username, password) VALUES(?, ?)"));
+                () -> JdbcUtils.update("INSECT INTO users(username, password) VALUES(?, ?)"));
     }
 
     @Test
     public void test3()
     {
         assertThrows(RuntimeException.class,
-                () -> JdbcTemplate.update("INSERT INTO users(username, password) VALUES('byx', '123456')",
+                () -> JdbcUtils.update("INSERT INTO users(username, password) VALUES('byx', '123456')",
                         "byx", "123456"));
     }
 }

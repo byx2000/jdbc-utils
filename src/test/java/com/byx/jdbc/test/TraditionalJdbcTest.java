@@ -1,6 +1,6 @@
 package com.byx.jdbc.test;
 
-import com.byx.jdbc.JdbcTemplate;
+import com.byx.jdbc.JdbcUtils;
 import com.byx.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,8 +20,8 @@ public class TraditionalJdbcTest
 
         try
         {
-            conn = JdbcTemplate.getConnection();
-            stmt = JdbcTemplate.createPreparedStatement(conn,
+            conn = JdbcUtils.getConnection();
+            stmt = JdbcUtils.createPreparedStatement(conn,
                     "SELECT * FROM users WHERE password = ?",
                     "456");
             rs = stmt.executeQuery();
@@ -43,7 +43,7 @@ public class TraditionalJdbcTest
         }
         finally
         {
-            JdbcTemplate.close(rs, stmt, conn);
+            JdbcUtils.close(rs, stmt, conn);
         }
     }
 
@@ -57,8 +57,8 @@ public class TraditionalJdbcTest
         // 插入
         try
         {
-            conn = JdbcTemplate.getConnection();
-            stmt = JdbcTemplate.createPreparedStatement(conn,
+            conn = JdbcUtils.getConnection();
+            stmt = JdbcUtils.createPreparedStatement(conn,
                     "INSERT INTO users(username, password) VALUES(?, ?)",
                     "byx", "123456");
             int count = stmt.executeUpdate();
@@ -71,14 +71,14 @@ public class TraditionalJdbcTest
         }
         finally
         {
-            JdbcTemplate.close(stmt, conn);
+            JdbcUtils.close(stmt, conn);
         }
 
         // 查询
         try
         {
-            conn = JdbcTemplate.getConnection();
-            stmt = JdbcTemplate.createPreparedStatement(conn, "SELECT * FROM users");
+            conn = JdbcUtils.getConnection();
+            stmt = JdbcUtils.createPreparedStatement(conn, "SELECT * FROM users");
             rs = stmt.executeQuery();
             List<User> users = new ArrayList<>();
             while (rs.next())
@@ -98,14 +98,14 @@ public class TraditionalJdbcTest
         }
         finally
         {
-            JdbcTemplate.close(stmt, conn);
+            JdbcUtils.close(stmt, conn);
         }
 
         // 删除
         try
         {
-            conn = JdbcTemplate.getConnection();
-            stmt = JdbcTemplate.createPreparedStatement(conn,
+            conn = JdbcUtils.getConnection();
+            stmt = JdbcUtils.createPreparedStatement(conn,
                     "DELETE FROM users WHERE username = ? AND password = ?",
                     "byx", "123456");
             int count = stmt.executeUpdate();
@@ -118,14 +118,14 @@ public class TraditionalJdbcTest
         }
         finally
         {
-            JdbcTemplate.close(stmt, conn);
+            JdbcUtils.close(stmt, conn);
         }
 
         // 查询
         try
         {
-            conn = JdbcTemplate.getConnection();
-            stmt = JdbcTemplate.createPreparedStatement(conn, "SELECT COUNT(*) FROM users");
+            conn = JdbcUtils.getConnection();
+            stmt = JdbcUtils.createPreparedStatement(conn, "SELECT COUNT(*) FROM users");
             rs = stmt.executeQuery();
             int count = rs.getInt(1);
 
@@ -137,7 +137,7 @@ public class TraditionalJdbcTest
         }
         finally
         {
-            JdbcTemplate.close(stmt, conn);
+            JdbcUtils.close(stmt, conn);
         }
     }
 }
