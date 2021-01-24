@@ -1,4 +1,4 @@
-package com.byx.jdbc.core;
+package com.byx.util.jdbc.core;
 
 import java.util.ArrayList;
 import java.util.List;

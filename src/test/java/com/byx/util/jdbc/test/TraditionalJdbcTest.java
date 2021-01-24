@@ -1,7 +1,7 @@
-package com.byx.jdbc.test;
+package com.byx.util.jdbc.test;
 
-import com.byx.jdbc.JdbcUtils;
-import com.byx.jdbc.test.domain.User;
+import com.byx.util.jdbc.JdbcUtils;
+import com.byx.util.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

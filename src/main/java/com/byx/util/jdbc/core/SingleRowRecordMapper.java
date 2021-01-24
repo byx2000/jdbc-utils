@@ -1,4 +1,4 @@
-package com.byx.jdbc.core;
+package com.byx.util.jdbc.core;
 
 /**
  * 转换只有一行的结果集

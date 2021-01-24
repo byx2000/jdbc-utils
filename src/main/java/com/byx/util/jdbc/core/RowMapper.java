@@ -1,4 +1,4 @@
-package com.byx.jdbc.core;
+package com.byx.util.jdbc.core;
 
 /**
  * 行转换器接口
