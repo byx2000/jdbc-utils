@@ -2,8 +2,6 @@ package com.byx.jdbc.core;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 
 /**
  * 将一行数据转换成JavaBean
@@ -19,17 +17,23 @@ public class BeanRowMapper<T> implements RowMapper<T>
     }
 
     @Override
-    public T map(ResultSet rs) throws Exception
+    public T map(Row row)
     {
-        ResultSetMetaData metaData = rs.getMetaData();
-        int count = metaData.getColumnCount();
-        T bean = type.getDeclaredConstructor().newInstance();
-        for (int i = 1; i <= count; i++)
+        try
         {
-            PropertyDescriptor pd = new PropertyDescriptor(metaData.getColumnLabel(i), type);
-            Method setter = pd.getWriteMethod();
-            setter.invoke(bean, rs.getObject(i));
+            int count = row.getColumnCount();
+            T bean = type.getDeclaredConstructor().newInstance();
+            for (int i = 1; i <= count; i++)
+            {
+                PropertyDescriptor pd = new PropertyDescriptor(row.getColumnLabel(i), type);
+                Method setter = pd.getWriteMethod();
+                setter.invoke(bean, row.getObject(i));
+            }
+            return bean;
         }
-        return bean;
+        catch (Exception e)
+        {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 }

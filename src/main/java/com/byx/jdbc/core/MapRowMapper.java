@@ -1,7 +1,5 @@
 package com.byx.jdbc.core;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -11,15 +9,14 @@ import java.util.Map;
 public class MapRowMapper implements RowMapper<Map<String, Object>>
 {
     @Override
-    public Map<String, Object> map(ResultSet rs) throws Exception
+    public Map<String, Object> map(Row row)
     {
         Map<String, Object> map = new Hashtable<>();
-        ResultSetMetaData metaData = rs.getMetaData();
-        int count = metaData.getColumnCount();
+        int count = row.getColumnCount();
         for (int i = 1; i <= count; i++)
         {
-            String key = metaData.getColumnLabel(i);
-            Object value = rs.getObject(i);
+            String key = row.getColumnLabel(i);
+            Object value = row.getObject(i);
             map.put(key, value);
         }
         return map;

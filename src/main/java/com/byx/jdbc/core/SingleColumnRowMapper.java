@@ -1,7 +1,5 @@
 package com.byx.jdbc.core;
 
-import java.sql.ResultSet;
-
 /**
  * 转换只有一个列的数据行
  * @param <T> 结果类型
@@ -16,8 +14,8 @@ public class SingleColumnRowMapper<T> implements RowMapper<T>
     }
 
     @Override
-    public T map(ResultSet rs) throws Exception
+    public T map(Row row)
     {
-        return type.cast(rs.getObject(1));
+        return type.cast(row.getObject(1));
     }
 }

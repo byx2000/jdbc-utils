@@ -38,7 +38,7 @@ public class QuerySingleRowTest
     public void test3()
     {
         String username = JdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 2",
-                rs -> rs.getString("username"));
+                row -> row.getString("username"));
 
         assertNotNull(username);
         assertEquals("bbb", username);

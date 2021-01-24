@@ -41,7 +41,7 @@ public class QueryListTest
     @Test
     public void test4()
     {
-        List<String> usernames = JdbcUtils.queryList("SELECT * FROM users", rs -> rs.getString("username"));
+        List<String> usernames = JdbcUtils.queryList("SELECT * FROM users", row -> row.getString("username"));
 
         assertNotNull(usernames);
         assertEquals(5, usernames.size());

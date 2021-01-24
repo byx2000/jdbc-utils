@@ -107,16 +107,16 @@ public class JdbcUtils
      * 查询数据库并转换结果集。
      * 用户可自定义结果集转换器。
      * 用户也可使用预定义的结果集转换器。
-     * @see ResultSetMapper
-     * @see ListResultSetMapper
-     * @see SingleRowResultSetMapper
+     * @see RecordMapper
+     * @see ListRecordMapper
+     * @see SingleRowRecordMapper
      * @param sql sql语句
-     * @param resultSetMapper 结果集转换器
+     * @param recordMapper 结果集转换器
      * @param params sql参数
      * @param <T> resultSetMapper返回的结果类型
      * @return 成功则返回转换结果，失败则抛出RuntimeException，结果为空则返回空列表
      */
-    public static <T> T query(String sql, ResultSetMapper<T> resultSetMapper, Object... params)
+    public static <T> T query(String sql, RecordMapper<T> recordMapper, Object... params)
     {
         ResultSet rs = null;
         PreparedStatement stmt = null;
@@ -126,11 +126,11 @@ public class JdbcUtils
             conn = getConnection();
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
-            return resultSetMapper.map(rs);
+            return recordMapper.map(new RecordAdapterForResultSet(rs));
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         finally
         {
@@ -154,7 +154,7 @@ public class JdbcUtils
      */
     public static <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params)
     {
-        return query(sql, new ListResultSetMapper<>(rowMapper), params);
+        return query(sql, new ListRecordMapper<>(rowMapper), params);
     }
 
     /**
@@ -167,7 +167,7 @@ public class JdbcUtils
      */
     public static <T> List<T> queryList(String sql, Class<T> type, Object... params)
     {
-        return query(sql, new ListResultSetMapper<>(new BeanRowMapper<>(type)), params);
+        return query(sql, new ListRecordMapper<>(new BeanRowMapper<>(type)), params);
     }
 
     /**
@@ -181,7 +181,7 @@ public class JdbcUtils
      */
     public static <T> T querySingleValue(String sql, Class<T> type, Object... params)
     {
-        return query(sql, new SingleRowResultSetMapper<>(new SingleColumnRowMapper<>(type)), params);
+        return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>(type)), params);
     }
 
     /**
@@ -201,7 +201,7 @@ public class JdbcUtils
      */
     public static <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params)
     {
-        return query(sql, new SingleRowResultSetMapper<>(rowMapper), params);
+        return query(sql, new SingleRowRecordMapper<>(rowMapper), params);
     }
 
     /**
@@ -235,7 +235,7 @@ public class JdbcUtils
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         finally
         {
