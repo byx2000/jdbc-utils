@@ -46,6 +46,7 @@ public interface RecordMapper<T>
 |`BeanRowMapper<T>`|将一行数据转换成JavaBean|
 |`MapRowMapper`|将一行数据转换成`Map`|
 |`SingleColumnRowMapper<T>`|提取行中的单独一列|
+
 如果要自定义行转换器，则需要实现`RowMapper<T>`接口：
 ```java
 public interface RowMapper<T>
