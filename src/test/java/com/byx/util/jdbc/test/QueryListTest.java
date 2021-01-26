@@ -2,9 +2,11 @@ package com.byx.util.jdbc.test;
 
 import com.byx.util.jdbc.JdbcUtils;
 import com.byx.util.jdbc.core.BeanRowMapper;
+import com.byx.util.jdbc.core.Row;
 import com.byx.util.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +25,44 @@ public class QueryListTest
     @Test
     public void test2()
     {
+        List<User> users = JdbcUtils.query("SELECT * FROM users", record ->
+        {
+            List<User> us = new ArrayList<>();
+            while (record.next())
+            {
+                Row row = record.getCurrentRow();
+                User u = new User();
+                u.setId(row.getInt("id"));
+                u.setUsername(row.getString("username"));
+                u.setPassword(row.getString("password"));
+                us.add(u);
+            }
+            return us;
+        });
+
+        assertNotNull(users);
+        assertEquals(5, users.size());
+    }
+
+    @Test
+    public void test3()
+    {
+        List<User> users = JdbcUtils.queryList("SELECT * FROM users", row ->
+        {
+            User u = new User();
+            u.setId(row.getInt("id"));
+            u.setUsername(row.getString("username"));
+            u.setPassword(row.getString("password"));
+            return u;
+        });
+
+        assertNotNull(users);
+        assertEquals(5, users.size());
+    }
+
+    @Test
+    public void test4()
+    {
         List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = ?", new BeanRowMapper<>(User.class), "456");
 
         assertNotNull(users);
@@ -30,7 +70,7 @@ public class QueryListTest
     }
 
     @Test
-    public void test3()
+    public void test5()
     {
         List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = 10086", new BeanRowMapper<>(User.class));
 
@@ -39,7 +79,7 @@ public class QueryListTest
     }
 
     @Test
-    public void test4()
+    public void test6()
     {
         List<String> usernames = JdbcUtils.queryList("SELECT * FROM users", row -> row.getString("username"));
 
@@ -48,21 +88,21 @@ public class QueryListTest
     }
 
     @Test()
-    public void test5()
+    public void test7()
     {
         assertThrows(RuntimeException.class,
                 () -> JdbcUtils.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
     }
 
     @Test
-    public void test6()
+    public void test8()
     {
         assertThrows(RuntimeException.class,
                 () -> JdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
     }
 
     @Test
-    public void test7()
+    public void test9()
     {
         List<User> users = JdbcUtils.queryList("SELECT * FROM users", User.class);
 
@@ -71,7 +111,7 @@ public class QueryListTest
     }
 
     @Test
-    public void test8()
+    public void test10()
     {
         List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = ?", User.class, "456");
 
@@ -80,7 +120,7 @@ public class QueryListTest
     }
 
     @Test
-    public void test9()
+    public void test11()
     {
         List<User> users = JdbcUtils.queryList("SELECT * FROM users WHERE password = 10086", User.class);
 
@@ -89,14 +129,14 @@ public class QueryListTest
     }
 
     @Test
-    public void test10()
+    public void test12()
     {
         assertThrows(RuntimeException.class,
                 () -> JdbcUtils.queryList("SELECT * FROM", User.class));
     }
 
     @Test
-    public void test11()
+    public void test13()
     {
         assertThrows(RuntimeException.class,
                 () -> JdbcUtils.queryList("SELECT * FROM users", User.class, "aaa", "123"));
