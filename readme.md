@@ -72,8 +72,35 @@ public interface RowMapper<T>
 ### 查询
 #### 1. 查询所有用户
 ```java
+// 方法1：使用预定义的RecordMapper和RowMapper
 List<User> users = JdbcTemplate.query("SELECT * FROM users",
                 new ListResultSetMapper<>(new BeanRowMapper<>(User.class)));
+
+// 方法2：使用自定义RecordMapper
+List<User> users = JdbcUtils.query("SELECT * FROM users", record ->
+{
+    List<User> us = new ArrayList<>();
+    while (record.next())
+    {
+        Row row = record.getCurrentRow();
+        User u = new User();
+        u.setId(row.getInt("id"));
+        u.setUsername(row.getString("username"));
+        u.setPassword(row.getString("password"));
+        us.add(u);
+    }
+    return us;
+});
+
+// 方法3：使用自定义RowMapper
+List<User> users = JdbcUtils.queryList("SELECT * FROM users", row ->
+{
+    User u = new User();
+    u.setId(row.getInt("id"));
+    u.setUsername(row.getString("username"));
+    u.setPassword(row.getString("password"));
+    return u;
+});
 ```
 #### 2. 查询id大于5的所有用户
 ```java
