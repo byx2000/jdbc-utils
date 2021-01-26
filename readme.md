@@ -24,6 +24,7 @@
 |-|-|
 |`ListRecordMapper<T>`|将整个结果集转换成列表|
 |`SingleRowRecordMapper<T>`|从结果集中提取单行数据|
+
 如果要自定义结果集转换器，则需要实现`RecordMapper<T>`接口：
 ```java
 public interface RecordMapper<T>
@@ -36,6 +37,7 @@ public interface RecordMapper<T>
 |-|-|
 |`Row getCurrentRow()`|获取当前行|
 |`boolean next()`|移动到下一行|
+
 更多细节见下面的使用示例。
 ## 行转换器
 行转换器用于对结果集中的一行进行转换，用户可实现自己的行转换器，也可使用预定义的行转换器，下面是所有预定义的行转换器：
@@ -58,6 +60,7 @@ public interface RowMapper<T>
 |`Object getObject(int columnIndex)`|根据列索引号获取列值（从1开始）|
 |`int getColumnCount()`|获取列数|
 |`String getColumnLabel(int index)`|根据列索引获取列标签（列名）|
+
 更多细节见下面的使用示例。
 ## 更新操作
 下面是`JdbcUtils`中用于更新操作的方法：
@@ -95,7 +98,8 @@ Integer count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users",
 ### 更新
 #### 1. 插入用户
 ```java
-int count = JdbcUtils.update("INSERT INTO users(username, password) VALUES(?, ?)", "byx", "123456");
+int count = JdbcUtils.update("INSERT INTO users(username, password) VALUES(?, ?)",
+                "byx", "123456");
 ```
 #### 2. 删除用户
 ```java
