@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.core;
+package byx.util.jdbc.core;
 
 /**
  * 转换只有一个列的数据行

@@ -1,6 +1,6 @@
-package com.byx.util.jdbc;
+package byx.util.jdbc;
 
-import com.byx.util.jdbc.core.*;
+import byx.util.jdbc.core.*;
 
 import java.io.IOException;
 import java.io.InputStream;

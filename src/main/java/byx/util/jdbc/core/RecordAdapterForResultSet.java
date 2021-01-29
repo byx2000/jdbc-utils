@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.core;
+package byx.util.jdbc.core;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

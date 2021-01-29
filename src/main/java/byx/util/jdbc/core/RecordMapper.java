@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.core;
+package byx.util.jdbc.core;
 
 /**
  * 结果集转换器接口

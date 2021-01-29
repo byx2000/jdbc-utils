@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.test.domain;
+package byx.util.jdbc.test.domain;
 
 public class User
 {

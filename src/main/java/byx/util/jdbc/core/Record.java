@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.core;
+package byx.util.jdbc.core;
 
 /**
  * 结果集：对数据库查询操作返回结果的封装。

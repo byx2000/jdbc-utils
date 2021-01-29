@@ -1,8 +1,8 @@
-package com.byx.util.jdbc.test;
+package byx.util.jdbc.test;
 
-import com.byx.util.jdbc.core.BeanRowMapper;
-import com.byx.util.jdbc.JdbcUtils;
-import com.byx.util.jdbc.test.domain.User;
+import byx.util.jdbc.JdbcUtils;
+import byx.util.jdbc.core.BeanRowMapper;
+import byx.util.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

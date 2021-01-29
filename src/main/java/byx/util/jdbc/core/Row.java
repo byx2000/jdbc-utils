@@ -1,4 +1,4 @@
-package com.byx.util.jdbc.core;
+package byx.util.jdbc.core;
 
 /**
  * 数据行：封装了结果集的一行数据。
