@@ -1,7 +1,25 @@
-# `JdbcUtils`使用指南
+# JdbcUtils使用指南
 `JdbcUtils`是JDBC的工具类，封装了JDBC连接获取、语句构造、资源释放等繁琐步骤，对外提供简洁的数据库查询和更新操作接口。
-## 配置数据库信息
-在`classpath`下新建一个`db.properties`文件，写入如下配置：
+## 使用前准备
+1. 添加maven仓库地址
+```xml
+<repositories>
+    <repository>
+        <id>JdbcUtils-maven-repo</id>
+        <name>JdbcUtils-maven-repo</name>
+        <url>https://byx2000.github.io/JdbcUtils/maven-repo/</url>
+    </repository>
+</repositories>
+```
+2. 添加maven依赖
+```xml
+<dependency>
+    <groupId>byx.util</groupId>
+    <artifactId>JdbcUtils</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+3. 在`resources`目录下新建一个`db.properties`文件，写入如下配置：
 |配置|说明|
 |-|-|
 |`jdbc.driver`|数据库驱动类名|
