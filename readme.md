@@ -20,6 +20,7 @@
 </dependency>
 ```
 3. 在`resources`目录下新建一个`db.properties`文件，写入如下配置：
+
 |配置|说明|
 |-|-|
 |`jdbc.driver`|数据库驱动类名|
