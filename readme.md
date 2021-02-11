@@ -5,19 +5,21 @@
 ```xml
 <repositories>
     <repository>
-        <id>JdbcUtils-maven-repo</id>
-        <name>JdbcUtils-maven-repo</name>
-        <url>https://byx2000.github.io/JdbcUtils/maven-repo/</url>
+        <id>byx-maven-repo</id>
+        <name>byx-maven-repo</name>
+        <url>https://gitee.com/byx2000/maven-repo/raw/master/</url>
     </repository>
 </repositories>
 ```
 2. 添加maven依赖
 ```xml
-<dependency>
-    <groupId>byx.util</groupId>
-    <artifactId>JdbcUtils</artifactId>
-    <version>1.0.0</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>byx.util</groupId>
+        <artifactId>JdbcUtils</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+</dependencies>
 ```
 3. 在`resources`目录下新建一个`db.properties`文件，写入如下配置：
 
