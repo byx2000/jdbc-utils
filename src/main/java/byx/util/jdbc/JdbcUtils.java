@@ -20,9 +20,21 @@ import java.util.Properties;
  * @author byx
  */
 public class JdbcUtils {
-    private static final String url;
-    private static final String username;
-    private static final String password;
+    private static final String URL;
+    private static final String USERNAME;
+    private static final String PASSWORD;
+
+    /**
+     * 用于在一个事务内共享数据库连接
+     */
+    private static final ThreadLocal<Connection> connHolder = new ThreadLocal<>();
+
+    /**
+     * 判断当前是否在事务中
+     */
+    private static boolean inTransaction() {
+        return connHolder.get() != null;
+    }
 
     static {
         try {
@@ -33,9 +45,9 @@ public class JdbcUtils {
 
             // 读取驱动类名、连接字符串、用户名和密码
             String driver = properties.getProperty("jdbc.driver");
-            url = properties.getProperty("jdbc.url");
-            username = properties.getProperty("jdbc.username");
-            password = properties.getProperty("jdbc.password");
+            URL = properties.getProperty("jdbc.url");
+            USERNAME = properties.getProperty("jdbc.username");
+            PASSWORD = properties.getProperty("jdbc.password");
 
             // 加载驱动
             Class.forName(driver);
@@ -47,13 +59,28 @@ public class JdbcUtils {
     }
 
     /**
+     * 创建新连接
+     */
+    private static Connection getNewConnection() {
+        try {
+            return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 获取连接
      *
-     * @return 创建的连接
-     * @throws SQLException 来自JDBC的异常
+     * @return 连接
      */
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, username, password);
+    private static Connection getConnection() {
+        Connection conn = connHolder.get();
+        if (conn == null) {
+            return getNewConnection();
+        } else {
+            return conn;
+        }
     }
 
     /**
@@ -63,24 +90,15 @@ public class JdbcUtils {
      * @param stmt 语句
      * @param conn 连接
      */
-    public static void close(ResultSet rs, Statement stmt, Connection conn) {
+    private static void close(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException ignored) {
-            }
+            try { rs.close(); } catch (SQLException ignored) { }
         }
         if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException ignored) {
-            }
+            try { stmt.close(); } catch (SQLException ignored) { }
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException ignored) {
-            }
+        if (!inTransaction() && conn != null) {
+            try { conn.close(); } catch (SQLException ignored) { }
         }
     }
 
@@ -90,18 +108,12 @@ public class JdbcUtils {
      * @param stmt 语句
      * @param conn 连接
      */
-    public static void close(Statement stmt, Connection conn) {
+    private static void close(Statement stmt, Connection conn) {
         if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException ignored) {
-            }
+            try { stmt.close(); } catch (SQLException ignored) { }
         }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException ignored) {
-            }
+        if (!inTransaction() && conn != null) {
+            try { conn.close(); } catch (SQLException ignored) { }
         }
     }
 
@@ -114,7 +126,7 @@ public class JdbcUtils {
      * @return 创建的PreparedStatement对象
      * @throws SQLException 来自JDBC的异常
      */
-    public static PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException {
+    private static PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(sql);
         for (int i = 0; i < params.length; ++i) {
             stmt.setObject(i + 1, params[i]);
@@ -241,6 +253,7 @@ public class JdbcUtils {
     public static int update(String sql, Object... params) {
         Connection conn = null;
         PreparedStatement stmt = null;
+
         try {
             conn = getConnection();
             stmt = createPreparedStatement(conn, sql, params);
@@ -249,6 +262,47 @@ public class JdbcUtils {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             close(stmt, conn);
+        }
+    }
+
+    /**
+     * 开启事务
+     */
+    public static void startTransaction() {
+        try {
+            Connection conn = getNewConnection();
+            connHolder.set(conn);
+            conn.setAutoCommit(false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 提交事务
+     */
+    public static void commit() {
+        try {
+            Connection conn = connHolder.get();
+            conn.commit();
+            conn.close();
+            connHolder.remove();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 回滚事务
+     */
+    public static void rollback() {
+        try {
+            Connection conn = connHolder.get();
+            conn.rollback();
+            conn.close();
+            connHolder.remove();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
