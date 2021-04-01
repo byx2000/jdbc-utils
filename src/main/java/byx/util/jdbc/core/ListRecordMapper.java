@@ -5,23 +5,20 @@ import java.util.List;
 
 /**
  * 将结果集转换成列表
- * @param <T> 列表元素类型
+ *
+ * @author byx
  */
-public class ListRecordMapper<T> implements RecordMapper<List<T>>
-{
+public class ListRecordMapper<T> implements RecordMapper<List<T>> {
     private final RowMapper<T> rowMapper;
 
-    public ListRecordMapper(RowMapper<T> rowMapper)
-    {
+    public ListRecordMapper(RowMapper<T> rowMapper) {
         this.rowMapper = rowMapper;
     }
 
     @Override
-    public List<T> map(Record record)
-    {
+    public List<T> map(Record record) {
         List<T> result = new ArrayList<>();
-        while (record.next())
-        {
+        while (record.next()) {
             result.add(rowMapper.map(record.getCurrentRow()));
         }
         return result;

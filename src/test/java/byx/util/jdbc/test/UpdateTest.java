@@ -9,11 +9,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UpdateTest
-{
+public class UpdateTest {
     @Test
-    public void test1()
-    {
+    public void test1() {
         int count = JdbcUtils.update("INSERT INTO users(username, password) VALUES(?, ?)", "byx", "123456");
         assertEquals(1, count);
 
@@ -24,9 +22,7 @@ public class UpdateTest
         count = JdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(6, count);
 
-        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?",
-                User.class,
-                "byx", "123456");
+        User user = JdbcUtils.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?", User.class, "byx", "123456");
         assertNotNull(user);
         assertEquals("byx", user.getUsername());
         assertEquals("123456", user.getPassword());
@@ -43,17 +39,12 @@ public class UpdateTest
     }
 
     @Test
-    public void test2()
-    {
-        assertThrows(RuntimeException.class,
-                () -> JdbcUtils.update("INSECT INTO users(username, password) VALUES(?, ?)"));
+    public void test2() {
+        assertThrows(RuntimeException.class, () -> JdbcUtils.update("INSECT INTO users(username, password) VALUES(?, ?)"));
     }
 
     @Test
-    public void test3()
-    {
-        assertThrows(RuntimeException.class,
-                () -> JdbcUtils.update("INSERT INTO users(username, password) VALUES('byx', '123456')",
-                        "byx", "123456"));
+    public void test3() {
+        assertThrows(RuntimeException.class, () -> JdbcUtils.update("INSERT INTO users(username, password) VALUES('byx', '123456')", "byx", "123456"));
     }
 }

@@ -5,34 +5,28 @@ import java.lang.reflect.Method;
 
 /**
  * 将一行数据转换成JavaBean
- * @param <T> 结果类型
+ *
+ * @author byx
  */
-public class BeanRowMapper<T> implements RowMapper<T>
-{
+public class BeanRowMapper<T> implements RowMapper<T> {
     private final Class<T> type;
 
-    public BeanRowMapper(Class<T> type)
-    {
+    public BeanRowMapper(Class<T> type) {
         this.type = type;
     }
 
     @Override
-    public T map(Row row)
-    {
-        try
-        {
+    public T map(Row row) {
+        try {
             int count = row.getColumnCount();
             T bean = type.getDeclaredConstructor().newInstance();
-            for (int i = 1; i <= count; i++)
-            {
+            for (int i = 1; i <= count; i++) {
                 PropertyDescriptor pd = new PropertyDescriptor(row.getColumnLabel(i), type);
                 Method setter = pd.getWriteMethod();
                 setter.invoke(bean, row.getObject(i));
             }
             return bean;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

@@ -4,162 +4,120 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-public class RecordAdapterForResultSet implements Record, Row
-{
+/**
+ * 将java.sql.ResultSet转换成自定义的Record，封装底层实现细节
+ *
+ * @author byx
+ */
+public class RecordAdapterForResultSet implements Record, Row {
     private final ResultSet rs;
 
-    public RecordAdapterForResultSet(ResultSet resultSet)
-    {
+    public RecordAdapterForResultSet(ResultSet resultSet) {
         this.rs = resultSet;
     }
 
     @Override
-    public Object getObject(String columnLabel)
-    {
-        try
-        {
+    public Object getObject(String columnLabel) {
+        try {
             return rs.getObject(columnLabel);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Object getObject(int columnIndex)
-    {
-        try
-        {
+    public Object getObject(int columnIndex) {
+        try {
             return rs.getObject(columnIndex);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public int getInt(String columnLabel)
-    {
-        try
-        {
+    public int getInt(String columnLabel) {
+        try {
             return rs.getInt(columnLabel);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public int getInt(int columnIndex)
-    {
-        try
-        {
+    public int getInt(int columnIndex) {
+        try {
             return rs.getInt(columnIndex);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String getString(String columnLabel)
-    {
-        try
-        {
+    public String getString(String columnLabel) {
+        try {
             return rs.getString(columnLabel);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String getString(int columnIndex)
-    {
-        try
-        {
+    public String getString(int columnIndex) {
+        try {
             return rs.getString(columnIndex);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getDouble(String columnLabel)
-    {
-        try
-        {
+    public double getDouble(String columnLabel) {
+        try {
             return rs.getDouble(columnLabel);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public double getDouble(int columnIndex)
-    {
-        try
-        {
+    public double getDouble(int columnIndex) {
+        try {
             return rs.getDouble(columnIndex);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public int getColumnCount()
-    {
-        try
-        {
+    public int getColumnCount() {
+        try {
             ResultSetMetaData metaData = rs.getMetaData();
             return metaData.getColumnCount();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String getColumnLabel(int index)
-    {
-        try
-        {
+    public String getColumnLabel(int index) {
+        try {
             ResultSetMetaData metaData = rs.getMetaData();
             return metaData.getColumnLabel(index);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Row getCurrentRow()
-    {
+    public Row getCurrentRow() {
         return this;
     }
 
     @Override
-    public boolean next()
-    {
-        try
-        {
+    public boolean next() {
+        try {
             return rs.next();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

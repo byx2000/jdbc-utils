@@ -7,18 +7,22 @@ package byx.util.jdbc.core;
  * 调用next方法可以让当前行向前移动一行。
  * 若当前已到达最后一行，则next调用返回false，否则返回true。
  * 结果集的当前行只能向前移动，不能向后移动。
+ *
+ * @author byx
+ *
  * @see Row
  */
-public interface Record
-{
+public interface Record {
     /**
      * 获取当前行
+     *
      * @return 当前行
      */
     Row getCurrentRow();
 
     /**
      * 移动到下一行
+     *
      * @return 若当前已到达最后一行，则返回false，否则返回true
      */
     boolean next();
