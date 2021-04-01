@@ -1,6 +1,5 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.JdbcUtils;
 import byx.util.jdbc.core.BeanRowMapper;
 import byx.util.jdbc.core.Row;
 import byx.util.jdbc.test.domain.User;
@@ -11,9 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QueryListTest {
-    private final JdbcUtils jdbcUtils = new JdbcUtils("org.sqlite.JDBC", "jdbc:sqlite::resource:test.db", "", "");
-    
+public class QueryListTest extends BaseTest {
     @Test
     public void test1() {
         List<User> users = jdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class));

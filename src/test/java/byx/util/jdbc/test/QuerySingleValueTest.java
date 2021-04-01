@@ -1,13 +1,10 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.JdbcUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QuerySingleValueTest {
-    private final JdbcUtils jdbcUtils = new JdbcUtils("org.sqlite.JDBC", "jdbc:sqlite::resource:test.db", "", "");
-    
+public class QuerySingleValueTest extends BaseTest {
     @Test
     public void test1() {
         Integer count = jdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);

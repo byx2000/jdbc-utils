@@ -1,6 +1,5 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.JdbcUtils;
 import byx.util.jdbc.core.BeanRowMapper;
 import byx.util.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
@@ -9,9 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UpdateTest {
-    private final JdbcUtils jdbcUtils = new JdbcUtils("db.properties");
-    
+public class UpdateTest extends BaseTest {
     @Test
     public void test1() {
         int count = jdbcUtils.update("INSERT INTO users(username, password) VALUES(?, ?)", "byx", "123456");

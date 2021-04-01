@@ -1,13 +1,10 @@
 package byx.util.jdbc;
 
 import byx.util.jdbc.core.*;
-import byx.util.jdbc.exception.DbException;
 
-import java.io.IOException;
-import java.io.InputStream;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * JDBC工具类
@@ -15,9 +12,10 @@ import java.util.Properties;
  * @author byx
  */
 public class JdbcUtils {
-    private final String url;
-    private final String username;
-    private final String password;
+    /**
+     * 数据源
+     */
+    private final DataSource dataSource;
 
     /**
      * 用于在一个事务内共享数据库连接
@@ -26,50 +24,10 @@ public class JdbcUtils {
 
     /**
      * 创建JdbcUtils
-     * @param driver 数据库驱动类名
-     * @param url 连接字符串
-     * @param username 用户名
-     * @param password 密码
+     * @param dataSource 数据源
      */
-    public JdbcUtils(String driver, String url, String username, String password) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-
-        try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            throw new DbException("Driver class not found: " + driver, e);
-        }
-    }
-
-    /**
-     * 创建JdbcUtils
-     * @param propertiesFile properties文件路径
-     */
-    public JdbcUtils(String propertiesFile) {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile);
-        Properties properties = new Properties();
-        try {
-            properties.load(in);
-        } catch (IOException e) {
-            throw new DbException("Cannot read properties file: " + propertiesFile, e);
-        }
-
-        String driver = properties.getProperty("jdbc.driver");
-        url = properties.getProperty("jdbc.url");
-        username = properties.getProperty("jdbc.username");
-        password = properties.getProperty("jdbc.password");
-        if (driver == null || url == null || username == null || password == null) {
-            throw new DbException("Properties file contains these key: jdbc.driver, jdbc.url, jdbc.username, dbc.password");
-        }
-
-
-        try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            throw new DbException("Driver class not found: " + driver, e);
-        }
+    public JdbcUtils(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -84,7 +42,7 @@ public class JdbcUtils {
      */
     private Connection getNewConnection() {
         try {
-            return DriverManager.getConnection(url, username, password);
+            return dataSource.getConnection();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

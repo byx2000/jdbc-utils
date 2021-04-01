@@ -1,13 +1,10 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.JdbcUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TransactionTest {
-    private final JdbcUtils jdbcUtils = new JdbcUtils("org.sqlite.JDBC", "jdbc:sqlite::resource:test.db", "", "");
-    
+public class TransactionTest extends BaseTest {
     @Test
     public void test() {
         try {

@@ -1,15 +1,12 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.JdbcUtils;
 import byx.util.jdbc.core.BeanRowMapper;
 import byx.util.jdbc.test.domain.User;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QuerySingleRowTest {
-    private final JdbcUtils jdbcUtils = new JdbcUtils("db.properties");
-    
+public class QuerySingleRowTest extends BaseTest {
     @Test
     public void test1() {
         User user = jdbcUtils.querySingleRow("SELECT * FROM users WHERE id = 2", new BeanRowMapper<>(User.class));
