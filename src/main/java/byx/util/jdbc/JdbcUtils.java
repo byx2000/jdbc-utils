@@ -1,6 +1,7 @@
 package byx.util.jdbc;
 
 import byx.util.jdbc.core.*;
+import byx.util.jdbc.exception.DbException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,60 +11,80 @@ import java.util.Properties;
 
 /**
  * JDBC工具类
- * <p>使用前，需要在resources目录下创建db.properties文件，并写入数据库相关配置</p>
- * <p>配置如下：</p>
- * <p>jdbc.driver: 数据库驱动类名</p>
- * <p>jdbc.url: 连接字符串</p>
- * <p>jdbc.username: 用户名</p>
- * <p>jdbc.password: 密码</p>
  *
  * @author byx
  */
 public class JdbcUtils {
-    private static final String URL;
-    private static final String USERNAME;
-    private static final String PASSWORD;
+    private final String url;
+    private final String username;
+    private final String password;
 
     /**
      * 用于在一个事务内共享数据库连接
      */
-    private static final ThreadLocal<Connection> connHolder = new ThreadLocal<>();
+    private final ThreadLocal<Connection> connHolder = new ThreadLocal<>();
+
+    /**
+     * 创建JdbcUtils
+     * @param driver 数据库驱动类名
+     * @param url 连接字符串
+     * @param username 用户名
+     * @param password 密码
+     */
+    public JdbcUtils(String driver, String url, String username, String password) {
+        this.url = url;
+        this.username = username;
+        this.password = password;
+
+        try {
+            Class.forName(driver);
+        } catch (ClassNotFoundException e) {
+            throw new DbException("Driver class not found: " + driver, e);
+        }
+    }
+
+    /**
+     * 创建JdbcUtils
+     * @param propertiesFile properties文件路径
+     */
+    public JdbcUtils(String propertiesFile) {
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile);
+        Properties properties = new Properties();
+        try {
+            properties.load(in);
+        } catch (IOException e) {
+            throw new DbException("Cannot read properties file: " + propertiesFile, e);
+        }
+
+        String driver = properties.getProperty("jdbc.driver");
+        url = properties.getProperty("jdbc.url");
+        username = properties.getProperty("jdbc.username");
+        password = properties.getProperty("jdbc.password");
+        if (driver == null || url == null || username == null || password == null) {
+            throw new DbException("Properties file contains these key: jdbc.driver, jdbc.url, jdbc.username, dbc.password");
+        }
+
+
+        try {
+            Class.forName(driver);
+        } catch (ClassNotFoundException e) {
+            throw new DbException("Driver class not found: " + driver, e);
+        }
+    }
 
     /**
      * 判断当前是否在事务中
      */
-    private static boolean inTransaction() {
+    private boolean inTransaction() {
         return connHolder.get() != null;
-    }
-
-    static {
-        try {
-            // 读取resources目录下的db.properties文件
-            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties");
-            Properties properties = new Properties();
-            properties.load(in);
-
-            // 读取驱动类名、连接字符串、用户名和密码
-            String driver = properties.getProperty("jdbc.driver");
-            URL = properties.getProperty("jdbc.url");
-            USERNAME = properties.getProperty("jdbc.username");
-            PASSWORD = properties.getProperty("jdbc.password");
-
-            // 加载驱动
-            Class.forName(driver);
-        } catch (NullPointerException | IOException e) {
-            throw new RuntimeException("找不到db.properties文件，请在resources目录下创建db.properties文件，并写入数据库配置", e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("找不到数据库驱动类", e);
-        }
     }
 
     /**
      * 创建新连接
      */
-    private static Connection getNewConnection() {
+    private Connection getNewConnection() {
         try {
-            return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            return DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -74,7 +95,7 @@ public class JdbcUtils {
      *
      * @return 连接
      */
-    private static Connection getConnection() {
+    private Connection getConnection() {
         Connection conn = connHolder.get();
         if (conn == null) {
             return getNewConnection();
@@ -90,7 +111,7 @@ public class JdbcUtils {
      * @param stmt 语句
      * @param conn 连接
      */
-    private static void close(ResultSet rs, Statement stmt, Connection conn) {
+    private void close(ResultSet rs, Statement stmt, Connection conn) {
         if (rs != null) {
             try { rs.close(); } catch (SQLException ignored) { }
         }
@@ -108,7 +129,7 @@ public class JdbcUtils {
      * @param stmt 语句
      * @param conn 连接
      */
-    private static void close(Statement stmt, Connection conn) {
+    private void close(Statement stmt, Connection conn) {
         if (stmt != null) {
             try { stmt.close(); } catch (SQLException ignored) { }
         }
@@ -126,7 +147,7 @@ public class JdbcUtils {
      * @return 创建的PreparedStatement对象
      * @throws SQLException 来自JDBC的异常
      */
-    private static PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException {
+    private PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(sql);
         for (int i = 0; i < params.length; ++i) {
             stmt.setObject(i + 1, params[i]);
@@ -148,7 +169,7 @@ public class JdbcUtils {
      * @see ListRecordMapper
      * @see SingleRowRecordMapper
      */
-    public static <T> T query(String sql, RecordMapper<T> recordMapper, Object... params) {
+    public <T> T query(String sql, RecordMapper<T> recordMapper, Object... params) {
         ResultSet rs = null;
         PreparedStatement stmt = null;
         Connection conn = null;
@@ -179,7 +200,7 @@ public class JdbcUtils {
      * @see MapRowMapper
      * @see SingleColumnRowMapper
      */
-    public static <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params) {
+    public <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params) {
         return query(sql, new ListRecordMapper<>(rowMapper), params);
     }
 
@@ -192,7 +213,7 @@ public class JdbcUtils {
      * @param <T>    JavaBean类型
      * @return 成功则返回结果列表，失败则抛出RuntimeException，结果为空则返回空列表
      */
-    public static <T> List<T> queryList(String sql, Class<T> type, Object... params) {
+    public <T> List<T> queryList(String sql, Class<T> type, Object... params) {
         return query(sql, new ListRecordMapper<>(new BeanRowMapper<>(type)), params);
     }
 
@@ -206,7 +227,7 @@ public class JdbcUtils {
      * @param <T>    结果类型
      * @return 成功则返回结果值，失败则抛出RuntimeException，结果为空则返回null
      */
-    public static <T> T querySingleValue(String sql, Class<T> type, Object... params) {
+    public <T> T querySingleValue(String sql, Class<T> type, Object... params) {
         return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>(type)), params);
     }
 
@@ -226,7 +247,7 @@ public class JdbcUtils {
      * @see MapRowMapper
      * @see SingleColumnRowMapper
      */
-    public static <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params) {
+    public <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params) {
         return query(sql, new SingleRowRecordMapper<>(rowMapper), params);
     }
 
@@ -239,7 +260,7 @@ public class JdbcUtils {
      * @param <T>    JavaBean类型
      * @return 成功则返回结果，失败则抛出RuntimeException，结果为空则返回null
      */
-    public static <T> T querySingleRow(String sql, Class<T> type, Object... params) {
+    public <T> T querySingleRow(String sql, Class<T> type, Object... params) {
         return querySingleRow(sql, new BeanRowMapper<>(type), params);
     }
 
@@ -250,7 +271,7 @@ public class JdbcUtils {
      * @param params sql参数
      * @return 成功则返回影响行数，失败则抛出RuntimeException
      */
-    public static int update(String sql, Object... params) {
+    public int update(String sql, Object... params) {
         Connection conn = null;
         PreparedStatement stmt = null;
 
@@ -268,7 +289,7 @@ public class JdbcUtils {
     /**
      * 开启事务
      */
-    public static void startTransaction() {
+    public void startTransaction() {
         try {
             Connection conn = getNewConnection();
             connHolder.set(conn);
@@ -281,7 +302,7 @@ public class JdbcUtils {
     /**
      * 提交事务
      */
-    public static void commit() {
+    public void commit() {
         try {
             Connection conn = connHolder.get();
             conn.commit();
@@ -295,7 +316,7 @@ public class JdbcUtils {
     /**
      * 回滚事务
      */
-    public static void rollback() {
+    public void rollback() {
         try {
             Connection conn = connHolder.get();
             conn.rollback();
