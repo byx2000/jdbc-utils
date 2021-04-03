@@ -5,6 +5,7 @@ import byx.util.jdbc.core.*;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * JDBC工具类
@@ -20,7 +21,7 @@ public class JdbcUtils {
     /**
      * 用于在一个事务内共享数据库连接
      */
-    private final ThreadLocal<Connection> connHolder = new ThreadLocal<>();
+    private final ThreadLocal<Stack<Connection>> connHolder = new ThreadLocal<>();
 
     /**
      * 创建JdbcUtils
@@ -28,13 +29,14 @@ public class JdbcUtils {
      */
     public JdbcUtils(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.connHolder.set(new Stack<>());
     }
 
     /**
      * 判断当前是否在事务中
      */
     public boolean inTransaction() {
-        return connHolder.get() != null;
+        return connHolder.get().size() > 0;
     }
 
     /**
@@ -54,10 +56,11 @@ public class JdbcUtils {
      * @return 连接
      */
     private Connection getConnection() {
-        Connection conn = connHolder.get();
-        if (conn == null) {
-            return getNewConnection();
+        if (inTransaction()) {
+            return connHolder.get().peek();
         } else {
+            Connection conn = getNewConnection();
+            //System.out.println("create: " + conn);
             return conn;
         }
     }
@@ -77,6 +80,7 @@ public class JdbcUtils {
             try { stmt.close(); } catch (SQLException ignored) { }
         }
         if (!inTransaction() && conn != null) {
+            //System.out.println("close1: " + conn);
             try { conn.close(); } catch (SQLException ignored) { }
         }
     }
@@ -92,6 +96,7 @@ public class JdbcUtils {
             try { stmt.close(); } catch (SQLException ignored) { }
         }
         if (!inTransaction() && conn != null) {
+            //System.out.println("close1: " + conn);
             try { conn.close(); } catch (SQLException ignored) { }
         }
     }
@@ -133,6 +138,7 @@ public class JdbcUtils {
         Connection conn = null;
         try {
             conn = getConnection();
+            //System.out.println("use: " + conn);
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
             return recordMapper.map(new RecordAdapterForResultSet(rs));
@@ -235,6 +241,7 @@ public class JdbcUtils {
 
         try {
             conn = getConnection();
+            //System.out.println("use:" + conn);
             stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         } catch (Exception e) {
@@ -250,7 +257,8 @@ public class JdbcUtils {
     public void startTransaction() {
         try {
             Connection conn = getNewConnection();
-            connHolder.set(conn);
+            //System.out.println("start transaction: " + conn);
+            connHolder.get().push(conn);
             conn.setAutoCommit(false);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -262,10 +270,11 @@ public class JdbcUtils {
      */
     public void commit() {
         try {
-            Connection conn = connHolder.get();
+            Connection conn = connHolder.get().pop();
+            //System.out.println("commit: " + conn);
             conn.commit();
+            //System.out.println("close: " + conn);
             conn.close();
-            connHolder.remove();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -276,10 +285,11 @@ public class JdbcUtils {
      */
     public void rollback() {
         try {
-            Connection conn = connHolder.get();
+            Connection conn = connHolder.get().pop();
+            //System.out.println("rollback: " + conn);
             conn.rollback();
+            //System.out.println("close: " + conn);
             conn.close();
-            connHolder.remove();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
