@@ -33,7 +33,7 @@ public class JdbcUtils {
     /**
      * 判断当前是否在事务中
      */
-    private boolean inTransaction() {
+    public boolean inTransaction() {
         return connHolder.get() != null;
     }
 
