@@ -59,9 +59,7 @@ public class JdbcUtils {
         if (inTransaction()) {
             return connHolder.get().peek();
         } else {
-            Connection conn = getNewConnection();
-            //System.out.println("create: " + conn);
-            return conn;
+            return getNewConnection();
         }
     }
 
@@ -80,7 +78,6 @@ public class JdbcUtils {
             try { stmt.close(); } catch (SQLException ignored) { }
         }
         if (!inTransaction() && conn != null) {
-            //System.out.println("close1: " + conn);
             try { conn.close(); } catch (SQLException ignored) { }
         }
     }
@@ -96,7 +93,6 @@ public class JdbcUtils {
             try { stmt.close(); } catch (SQLException ignored) { }
         }
         if (!inTransaction() && conn != null) {
-            //System.out.println("close1: " + conn);
             try { conn.close(); } catch (SQLException ignored) { }
         }
     }
@@ -138,7 +134,6 @@ public class JdbcUtils {
         Connection conn = null;
         try {
             conn = getConnection();
-            //System.out.println("use: " + conn);
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
             return recordMapper.map(new RecordAdapterForResultSet(rs));
@@ -241,7 +236,6 @@ public class JdbcUtils {
 
         try {
             conn = getConnection();
-            //System.out.println("use:" + conn);
             stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         } catch (Exception e) {
@@ -257,7 +251,6 @@ public class JdbcUtils {
     public void startTransaction() {
         try {
             Connection conn = getNewConnection();
-            //System.out.println("start transaction: " + conn);
             connHolder.get().push(conn);
             conn.setAutoCommit(false);
         } catch (Exception e) {
@@ -271,9 +264,7 @@ public class JdbcUtils {
     public void commit() {
         try {
             Connection conn = connHolder.get().pop();
-            //System.out.println("commit: " + conn);
             conn.commit();
-            //System.out.println("close: " + conn);
             conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -286,9 +277,7 @@ public class JdbcUtils {
     public void rollback() {
         try {
             Connection conn = connHolder.get().pop();
-            //System.out.println("rollback: " + conn);
             conn.rollback();
-            //System.out.println("close: " + conn);
             conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
