@@ -20,8 +20,8 @@ public class TransactionTest extends BaseTest {
             assertFalse(jdbcUtils.inTransaction());
         }
 
-        assertEquals(100, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(0, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(100, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(0, (int) jdbcUtils.querySingleValue("select value from B"));
 
         try {
             assertFalse(jdbcUtils.inTransaction());
@@ -36,8 +36,8 @@ public class TransactionTest extends BaseTest {
             jdbcUtils.rollback();
         }
 
-        assertEquals(90, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(10, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(90, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(10, (int) jdbcUtils.querySingleValue("select value from B"));
 
         try {
             jdbcUtils.startTransaction();
@@ -49,8 +49,8 @@ public class TransactionTest extends BaseTest {
             jdbcUtils.rollback();
         }
 
-        assertEquals(90, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(10, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(90, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(10, (int) jdbcUtils.querySingleValue("select value from B"));
 
         try {
             jdbcUtils.startTransaction();
@@ -61,8 +61,8 @@ public class TransactionTest extends BaseTest {
             jdbcUtils.rollback();
         }
 
-        assertEquals(100, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(0, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(100, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(0, (int) jdbcUtils.querySingleValue("select value from B"));
     }
 
     @Test
@@ -70,18 +70,18 @@ public class TransactionTest extends BaseTest {
         jdbcUtils.startTransaction();
         jdbcUtils.update("update A set value = value - 10");
         jdbcUtils.startTransaction();
-        jdbcUtils.querySingleValue("select value from A", Integer.class);
-        jdbcUtils.querySingleValue("select value from B", Integer.class);
+        jdbcUtils.querySingleValue("select value from A");
+        jdbcUtils.querySingleValue("select value from B");
         jdbcUtils.commit();
         jdbcUtils.update("update B set value = value + 10");
         jdbcUtils.commit();
 
-        assertEquals(90, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(10, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(90, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(10, (int) jdbcUtils.querySingleValue("select value from B"));
 
         jdbcUtils.update("update A set value = 100");
         jdbcUtils.update("update B set value = 0");
-        assertEquals(100, jdbcUtils.querySingleValue("select value from A", Integer.class));
-        assertEquals(0, jdbcUtils.querySingleValue("select value from B", Integer.class));
+        assertEquals(100, (int) jdbcUtils.querySingleValue("select value from A"));
+        assertEquals(0, (int) jdbcUtils.querySingleValue("select value from B"));
     }
 }

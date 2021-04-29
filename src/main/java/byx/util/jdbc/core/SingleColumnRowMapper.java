@@ -6,14 +6,9 @@ package byx.util.jdbc.core;
  * @author byx
  */
 public class SingleColumnRowMapper<T> implements RowMapper<T> {
-    private final Class<T> type;
-
-    public SingleColumnRowMapper(Class<T> type) {
-        this.type = type;
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public T map(Row row) {
-        return type.cast(row.getObject(1));
+        return (T) row.getObject(1);
     }
 }

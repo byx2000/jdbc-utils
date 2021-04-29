@@ -18,7 +18,7 @@ public class UpdateTest extends BaseTest {
         assertNotNull(users);
         assertEquals(6, users.size());
 
-        count = jdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
+        count = jdbcUtils.querySingleValue("SELECT COUNT(*) FROM users");
         assertEquals(6, count);
 
         User user = jdbcUtils.querySingleRow("SELECT * FROM users WHERE username = ? AND password = ?", User.class, "byx", "123456");
@@ -33,7 +33,7 @@ public class UpdateTest extends BaseTest {
         assertNotNull(users);
         assertEquals(5, users.size());
 
-        count = jdbcUtils.querySingleValue("SELECT COUNT(*) FROM users", Integer.class);
+        count = jdbcUtils.querySingleValue("SELECT COUNT(*) FROM users");
         assertEquals(5, count);
     }
 

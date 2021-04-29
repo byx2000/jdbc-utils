@@ -181,13 +181,12 @@ public class JdbcUtils {
      * 如果结果集中有多个值，则只返回第一行第一列的值。
      *
      * @param sql    sql语句
-     * @param type   结果类型
      * @param params sql参数
      * @param <T>    结果类型
      * @return 成功则返回结果值，失败则抛出RuntimeException，结果为空则返回null
      */
-    public <T> T querySingleValue(String sql, Class<T> type, Object... params) {
-        return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>(type)), params);
+    public <T> T querySingleValue(String sql, Object... params) {
+        return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>()), params);
     }
 
     /**
