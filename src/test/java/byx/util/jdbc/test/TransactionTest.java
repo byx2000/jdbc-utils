@@ -64,24 +64,4 @@ public class TransactionTest extends BaseTest {
         assertEquals(100, (int) jdbcUtils.querySingleValue("select value from A"));
         assertEquals(0, (int) jdbcUtils.querySingleValue("select value from B"));
     }
-
-    @Test
-    public void test2() {
-        jdbcUtils.startTransaction();
-        jdbcUtils.update("update A set value = value - 10");
-        jdbcUtils.startTransaction();
-        jdbcUtils.querySingleValue("select value from A");
-        jdbcUtils.querySingleValue("select value from B");
-        jdbcUtils.commit();
-        jdbcUtils.update("update B set value = value + 10");
-        jdbcUtils.commit();
-
-        assertEquals(90, (int) jdbcUtils.querySingleValue("select value from A"));
-        assertEquals(10, (int) jdbcUtils.querySingleValue("select value from B"));
-
-        jdbcUtils.update("update A set value = 100");
-        jdbcUtils.update("update B set value = 0");
-        assertEquals(100, (int) jdbcUtils.querySingleValue("select value from A"));
-        assertEquals(0, (int) jdbcUtils.querySingleValue("select value from B"));
-    }
 }

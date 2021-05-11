@@ -5,7 +5,6 @@ import byx.util.jdbc.core.*;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * JDBC工具类
@@ -14,86 +13,26 @@ import java.util.Stack;
  */
 public class JdbcUtils {
     /**
-     * 数据源
+     * 类型安全的Connection容器
      */
-    private final DataSource dataSource;
-
-    /**
-     * 用于在一个事务内共享数据库连接
-     */
-    private final ThreadLocal<Stack<Connection>> connHolder = new ThreadLocal<>();
+    private final ConnectionHolder connHolder;
 
     /**
      * 创建JdbcUtils
      * @param dataSource 数据源
      */
     public JdbcUtils(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.connHolder.set(new Stack<>());
+        connHolder = new ConnectionHolder(dataSource);
     }
 
     /**
      * 判断当前是否在事务中
      */
     public boolean inTransaction() {
-        return connHolder.get().size() > 0;
-    }
-
-    /**
-     * 创建新连接
-     */
-    private Connection getNewConnection() {
         try {
-            return dataSource.getConnection();
+            return connHolder.holding() && !connHolder.get().getAutoCommit();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * 获取连接
-     *
-     * @return 连接
-     */
-    private Connection getConnection() {
-        if (inTransaction()) {
-            return connHolder.get().peek();
-        } else {
-            return getNewConnection();
-        }
-    }
-
-    /**
-     * 释放资源
-     *
-     * @param rs   结果集
-     * @param stmt 语句
-     * @param conn 连接
-     */
-    private void close(ResultSet rs, Statement stmt, Connection conn) {
-        if (rs != null) {
-            try { rs.close(); } catch (SQLException ignored) { }
-        }
-        if (stmt != null) {
-            try { stmt.close(); } catch (SQLException ignored) { }
-        }
-        if (!inTransaction() && conn != null) {
-            try { conn.close(); } catch (SQLException ignored) { }
-        }
-    }
-
-    /**
-     * 释放资源
-     *
-     * @param stmt 语句
-     * @param conn 连接
-     */
-    private void close(Statement stmt, Connection conn) {
-        if (stmt != null) {
-            try { stmt.close(); } catch (SQLException ignored) { }
-        }
-        if (!inTransaction() && conn != null) {
-            try { conn.close(); } catch (SQLException ignored) { }
         }
     }
 
@@ -133,14 +72,24 @@ public class JdbcUtils {
         PreparedStatement stmt = null;
         Connection conn = null;
         try {
-            conn = getConnection();
+            conn = connHolder.get();
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
             return recordMapper.map(new RecordAdapterForResultSet(rs));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            close(rs, stmt, conn);
+            if (rs != null) {
+                try { rs.close(); } catch (SQLException ignored) {}
+            }
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException ignored) {}
+            }
+            try {
+                if (conn != null && conn.getAutoCommit()) {
+                    connHolder.close();
+                }
+            } catch (SQLException ignored) {}
         }
     }
 
@@ -234,13 +183,20 @@ public class JdbcUtils {
         PreparedStatement stmt = null;
 
         try {
-            conn = getConnection();
+            conn = connHolder.get();
             stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            close(stmt, conn);
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException ignored) {}
+            }
+            try {
+                if (conn != null && conn.getAutoCommit()) {
+                    connHolder.close();
+                }
+            } catch (SQLException ignored) {}
         }
     }
 
@@ -249,8 +205,7 @@ public class JdbcUtils {
      */
     public void startTransaction() {
         try {
-            Connection conn = getNewConnection();
-            connHolder.get().push(conn);
+            Connection conn = connHolder.get();
             conn.setAutoCommit(false);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -262,9 +217,9 @@ public class JdbcUtils {
      */
     public void commit() {
         try {
-            Connection conn = connHolder.get().pop();
+            Connection conn = connHolder.get();
             conn.commit();
-            conn.close();
+            connHolder.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -275,9 +230,9 @@ public class JdbcUtils {
      */
     public void rollback() {
         try {
-            Connection conn = connHolder.get().pop();
+            Connection conn = connHolder.get();
             conn.rollback();
-            conn.close();
+            connHolder.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
