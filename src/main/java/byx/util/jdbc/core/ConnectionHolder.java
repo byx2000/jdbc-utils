@@ -1,5 +1,7 @@
 package byx.util.jdbc.core;
 
+import byx.util.jdbc.exception.DbException;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 
@@ -25,7 +27,7 @@ public class ConnectionHolder {
             }
             return conn;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 
@@ -37,7 +39,7 @@ public class ConnectionHolder {
                 holder.remove();
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 

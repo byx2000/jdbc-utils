@@ -1,6 +1,7 @@
 package byx.util.jdbc;
 
 import byx.util.jdbc.core.*;
+import byx.util.jdbc.exception.DbException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -32,7 +33,7 @@ public class JdbcUtils {
         try {
             return connHolder.holding() && !connHolder.get().getAutoCommit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 
@@ -62,7 +63,7 @@ public class JdbcUtils {
      * @param recordMapper 结果集转换器
      * @param params       sql参数
      * @param <T>          resultSetMapper返回的结果类型
-     * @return 成功则返回转换结果，失败则抛出RuntimeException，结果为空则返回空列表
+     * @return 成功则返回转换结果，失败则抛出DbException，结果为空则返回空列表
      * @see RecordMapper
      * @see ListRecordMapper
      * @see SingleRowRecordMapper
@@ -77,7 +78,7 @@ public class JdbcUtils {
             rs = stmt.executeQuery();
             return recordMapper.map(new RecordAdapterForResultSet(rs));
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new DbException(e.getMessage(), e);
         } finally {
             if (rs != null) {
                 try { rs.close(); } catch (SQLException ignored) {}
@@ -102,7 +103,7 @@ public class JdbcUtils {
      * @param rowMapper 行转换器
      * @param params    sql参数
      * @param <T>       rowMapper返回的结果类型
-     * @return 成功则返回结果列表，失败则抛出RuntimeException，结果为空则返回空列表
+     * @return 成功则返回结果列表，失败则抛出DbException，结果为空则返回空列表
      * @see RowMapper
      * @see BeanRowMapper
      * @see MapRowMapper
@@ -119,7 +120,7 @@ public class JdbcUtils {
      * @param type   JavaBean类型
      * @param params sql参数
      * @param <T>    JavaBean类型
-     * @return 成功则返回结果列表，失败则抛出RuntimeException，结果为空则返回空列表
+     * @return 成功则返回结果列表，失败则抛出DbException，结果为空则返回空列表
      */
     public <T> List<T> queryList(String sql, Class<T> type, Object... params) {
         return query(sql, new ListRecordMapper<>(new BeanRowMapper<>(type)), params);
@@ -132,7 +133,7 @@ public class JdbcUtils {
      * @param sql    sql语句
      * @param params sql参数
      * @param <T>    结果类型
-     * @return 成功则返回结果值，失败则抛出RuntimeException，结果为空则返回null
+     * @return 成功则返回结果值，失败则抛出DbException，结果为空则返回null
      */
     public <T> T querySingleValue(String sql, Object... params) {
         return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>()), params);
@@ -148,7 +149,7 @@ public class JdbcUtils {
      * @param rowMapper 行转换器
      * @param params    sql参数
      * @param <T>       rowMapper返回的结果类型
-     * @return 成功则返回结果，失败则抛出RuntimeException，结果为空则返回null
+     * @return 成功则返回结果，失败则抛出DbException，结果为空则返回null
      * @see RowMapper
      * @see BeanRowMapper
      * @see MapRowMapper
@@ -165,7 +166,7 @@ public class JdbcUtils {
      * @param type   JavaBean类型
      * @param params sql参数
      * @param <T>    JavaBean类型
-     * @return 成功则返回结果，失败则抛出RuntimeException，结果为空则返回null
+     * @return 成功则返回结果，失败则抛出DbException，结果为空则返回null
      */
     public <T> T querySingleRow(String sql, Class<T> type, Object... params) {
         return querySingleRow(sql, new BeanRowMapper<>(type), params);
@@ -176,7 +177,7 @@ public class JdbcUtils {
      *
      * @param sql    sql语句
      * @param params sql参数
-     * @return 成功则返回影响行数，失败则抛出RuntimeException
+     * @return 成功则返回影响行数，失败则抛出DbException
      */
     public int update(String sql, Object... params) {
         Connection conn = null;
@@ -187,7 +188,7 @@ public class JdbcUtils {
             stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new DbException(e.getMessage(), e);
         } finally {
             if (stmt != null) {
                 try { stmt.close(); } catch (SQLException ignored) {}
@@ -208,7 +209,7 @@ public class JdbcUtils {
             Connection conn = connHolder.get();
             conn.setAutoCommit(false);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 
@@ -221,7 +222,7 @@ public class JdbcUtils {
             conn.commit();
             connHolder.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 
@@ -234,7 +235,7 @@ public class JdbcUtils {
             conn.rollback();
             connHolder.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new DbException(e.getMessage(), e);
         }
     }
 }
