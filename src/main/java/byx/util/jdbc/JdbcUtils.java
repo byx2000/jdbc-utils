@@ -13,28 +13,22 @@ import java.util.List;
  * @author byx
  */
 public class JdbcUtils {
-    /**
-     * 类型安全的Connection容器
-     */
-    private final ConnectionHolder connHolder;
+    private final ConnectionManager connManager;
 
     /**
      * 创建JdbcUtils
      * @param dataSource 数据源
      */
     public JdbcUtils(DataSource dataSource) {
-        connHolder = new ConnectionHolder(dataSource);
+        //connHolder = new ConnectionHolder(dataSource);
+        connManager = new ConnectionManager(dataSource);
     }
 
     /**
      * 判断当前是否在事务中
      */
     public boolean inTransaction() {
-        try {
-            return connHolder.holding() && !connHolder.get().getAutoCommit();
-        } catch (SQLException e) {
-            throw new DbException(e.getMessage(), e);
-        }
+        return connManager.inTransaction();
     }
 
     /**
@@ -73,24 +67,14 @@ public class JdbcUtils {
         PreparedStatement stmt = null;
         Connection conn = null;
         try {
-            conn = connHolder.get();
+            conn = connManager.getConnection();
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
             return recordMapper.map(new RecordAdapterForResultSet(rs));
         } catch (Exception e) {
             throw new DbException(e.getMessage(), e);
         } finally {
-            if (rs != null) {
-                try { rs.close(); } catch (SQLException ignored) {}
-            }
-            if (stmt != null) {
-                try { stmt.close(); } catch (SQLException ignored) {}
-            }
-            try {
-                if (conn != null && conn.getAutoCommit()) {
-                    connHolder.close();
-                }
-            } catch (SQLException ignored) {}
+            connManager.close(conn, stmt, rs);
         }
     }
 
@@ -184,20 +168,13 @@ public class JdbcUtils {
         PreparedStatement stmt = null;
 
         try {
-            conn = connHolder.get();
+            conn = connManager.getConnection();
             stmt = createPreparedStatement(conn, sql, params);
             return stmt.executeUpdate();
         } catch (Exception e) {
             throw new DbException(e.getMessage(), e);
         } finally {
-            if (stmt != null) {
-                try { stmt.close(); } catch (SQLException ignored) {}
-            }
-            try {
-                if (conn != null && conn.getAutoCommit()) {
-                    connHolder.close();
-                }
-            } catch (SQLException ignored) {}
+            connManager.close(conn, stmt);
         }
     }
 
@@ -205,37 +182,20 @@ public class JdbcUtils {
      * 开启事务
      */
     public void startTransaction() {
-        try {
-            Connection conn = connHolder.get();
-            conn.setAutoCommit(false);
-        } catch (Exception e) {
-            throw new DbException(e.getMessage(), e);
-        }
+        connManager.startTransaction();
     }
 
     /**
      * 提交事务
      */
     public void commit() {
-        try {
-            Connection conn = connHolder.get();
-            conn.commit();
-            connHolder.close();
-        } catch (Exception e) {
-            throw new DbException(e.getMessage(), e);
-        }
+        connManager.commit();
     }
 
     /**
      * 回滚事务
      */
     public void rollback() {
-        try {
-            Connection conn = connHolder.get();
-            conn.rollback();
-            connHolder.close();
-        } catch (Exception e) {
-            throw new DbException(e.getMessage(), e);
-        }
+        connManager.rollback();
     }
 }
