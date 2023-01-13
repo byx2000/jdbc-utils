@@ -20,7 +20,6 @@ public class JdbcUtils {
      * @param dataSource 数据源
      */
     public JdbcUtils(DataSource dataSource) {
-        //connHolder = new ConnectionHolder(dataSource);
         connManager = new ConnectionManager(dataSource);
     }
 
