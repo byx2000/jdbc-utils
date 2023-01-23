@@ -2,26 +2,6 @@
 
 `JdbcUtils`是JDBC的工具类，封装了JDBC连接获取、语句构造、资源释放、事务控制等操作，对外提供简洁的数据库操作接口。
 
-## Maven导入
-
-```xml
-<repositories>
-    <repository>
-        <id>byx-maven-repo</id>
-        <name>byx-maven-repo</name>
-        <url>https://gitee.com/byx2000/maven-repo/raw/master/</url>
-    </repository>
-</repositories>
-
-<dependencies>
-    <dependency>
-        <groupId>byx.util</groupId>
-        <artifactId>JdbcUtils</artifactId>
-        <version>1.0.0</version>
-    </dependency>
-</dependencies>
-```
-
 ## 创建JdbcUtils
 
 通过将一个`DataSource`实例传入`JdbcUtils`的构造函数来创建一个`JdbcUtils`实例：
@@ -41,7 +21,7 @@ JdbcUtils jdbcUtils = new JdbcUtils(dataSource());
 
 |方法|说明|
 |---|---|
-|`T query(String sql, RecordMapper<T> recordMapper, Object... params)`|查询数据库并转换结果集|
+|`T query(String sql, ResultMapper<T> resultMapper, Object... params)`|查询数据库并转换结果集|
 |`List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params)`|查询数据库，对结果集的每一行进行转换，然后将所有行封装成列表|
 |`List<T> queryList(String sql, Class<T> type, Object... params)`|查询数据库，将结果集的每一行转换成JavaBean，然后将所有行封装成列表|
 |`T querySingleValue(String sql, Class<T> type, Object... params)`|查询数据库，返回结果集中的单个值|
@@ -54,24 +34,16 @@ JdbcUtils jdbcUtils = new JdbcUtils(dataSource());
 
 |结果集转换器|说明|
 |---|---|
-|`ListRecordMapper<T>`|将整个结果集转换成列表|
-|`SingleRowRecordMapper<T>`|从结果集中提取单行数据|
+|`ListResultMapper<T>`|将整个结果集转换成列表|
+|`SingleRowResultMapper<T>`|从结果集中提取单行数据|
 
-如果要自定义结果集转换器，则需要实现`RecordMapper<T>`接口：
+如果要自定义结果集转换器，则需要实现`ResultMapper<T>`接口：
 
 ```java
-public interface RecordMapper<T>
-{
-    T map(Record record);
+public interface ResultMapper<T> {
+    T map(ResultSet rs);
 }
 ```
-
-`map`方法的`Record`参数封装了JDBC中的`ResultSet`，其方法说明如下：
-
-|方法|说明|
-|---|---|
-|`Row getCurrentRow()`|获取当前行|
-|`boolean next()`|移动到下一行|
 
 更多细节见下面的使用示例。
 
@@ -88,20 +60,10 @@ public interface RecordMapper<T>
 如果要自定义行转换器，则需要实现`RowMapper<T>`接口：
 
 ```java
-public interface RowMapper<T>
-{
-    T map(Row row);
+public interface RowMapper<T> {
+    T map(ResultSet rs);
 }
 ```
-
-`map`方法的`Row`参数封装了结果集中的一行数据，其部分方法说明如下：
-
-|方法|说明|
-|---|---|
-|`Object getObject(String columnLabel)`|根据列名获取列值|
-|`Object getObject(int columnIndex)`|根据列索引号获取列值（从1开始）|
-|`int getColumnCount()`|获取列数|
-|`String getColumnLabel(int index)`|根据列索引获取列标签（列名）|
 
 更多细节见下面的使用示例。
 
@@ -130,22 +92,20 @@ public interface RowMapper<T>
 #### 1. 查询所有用户
 
 ```java
-// 方法1：使用预定义的RecordMapper和RowMapper
+// 方法1：使用预定义的ResultMapper和RowMapper
 List<User> users = jdbcUtils.query("SELECT * FROM users",
-                new ListResultSetMapper<>(new BeanRowMapper<>(User.class)));
+                new ListResultMapper<>(new BeanRowMapper<>(User.class)));
 
-// 方法2：使用自定义RecordMapper
+// 方法2：使用自定义ResultMapper
 List<User> users = jdbcUtils.query("SELECT * FROM users", record ->
 {
     List<User> us = new ArrayList<>();
-    while (record.next())
-    {
-        Row row = record.getCurrentRow();
-        User u = new User();
-        u.setId(row.getInt("id"));
-        u.setUsername(row.getString("username"));
-        u.setPassword(row.getString("password"));
-        us.add(u);
+    while (rs.next()) {
+    User u = new User();
+    u.setId(rs.getInt("id"));
+    u.setUsername(rs.getString("username"));
+    u.setPassword(rs.getString("password"));
+    us.add(u);
     }
     return us;
 });

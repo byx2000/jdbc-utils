@@ -1,8 +1,9 @@
 package byx.util.jdbc.test;
 
-import byx.util.jdbc.core.BeanRowMapper;
-import byx.util.jdbc.core.Row;
-import byx.util.jdbc.test.domain.User;
+import byx.util.jdbc.BeanRowMapper;
+import byx.util.jdbc.DbException;
+import byx.util.jdbc.test.pojo.Book;
+import byx.util.jdbc.test.pojo.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -21,14 +22,13 @@ public class QueryListTest extends BaseTest {
 
     @Test
     public void test2() {
-        List<User> users = jdbcUtils.query("SELECT * FROM users", record -> {
+        List<User> users = jdbcUtils.query("SELECT * FROM users", rs -> {
             List<User> us = new ArrayList<>();
-            while (record.next()) {
-                Row row = record.getCurrentRow();
+            while (rs.next()) {
                 User u = new User();
-                u.setId(row.getInt("id"));
-                u.setUsername(row.getString("username"));
-                u.setPassword(row.getString("password"));
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setPassword(rs.getString("password"));
                 us.add(u);
             }
             return us;
@@ -78,12 +78,12 @@ public class QueryListTest extends BaseTest {
 
     @Test()
     public void test7() {
-        assertThrows(RuntimeException.class, () -> jdbcUtils.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
+        assertThrows(DbException.class, () -> jdbcUtils.queryList("SELECT * FROM users WEAR id = 1", new BeanRowMapper<>(User.class)));
     }
 
     @Test
     public void test8() {
-        assertThrows(RuntimeException.class, () -> jdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
+        assertThrows(DbException.class, () -> jdbcUtils.queryList("SELECT * FROM users", new BeanRowMapper<>(User.class), "aaa"));
     }
 
     @Test
@@ -112,11 +112,17 @@ public class QueryListTest extends BaseTest {
 
     @Test
     public void test12() {
-        assertThrows(RuntimeException.class, () -> jdbcUtils.queryList("SELECT * FROM", User.class));
+        assertThrows(DbException.class, () -> jdbcUtils.queryList("SELECT * FROM", User.class));
     }
 
     @Test
     public void test13() {
-        assertThrows(RuntimeException.class, () -> jdbcUtils.queryList("SELECT * FROM users", User.class, "aaa", "123"));
+        assertThrows(DbException.class, () -> jdbcUtils.queryList("SELECT * FROM users", User.class, "aaa", "123"));
+    }
+
+    @Test
+    public void test14() {
+        assertThrows(DbException.class, () -> jdbcUtils.queryList("SELECT * FROM users", Book.class));
+        assertThrows(DbException.class, () -> jdbcUtils.querySingleRow("SELECT * FROM users where id = 1", Book.class));
     }
 }

@@ -1,4 +1,4 @@
-package byx.util.jdbc.test.domain;
+package byx.util.jdbc.test.pojo;
 
 public class User {
     private Integer id;
@@ -31,6 +31,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "com.byx.test.User{" + "id=" + id + ", username='" + username + '\'' + ", password='" + password + '\'' + '}';
+        return "User{" + "id=" + id + ", username='" + username + '\'' + ", password='" + password + '\'' + '}';
     }
 }

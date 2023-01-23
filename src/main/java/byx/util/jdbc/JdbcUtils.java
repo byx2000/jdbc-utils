@@ -1,8 +1,5 @@
 package byx.util.jdbc;
 
-import byx.util.jdbc.core.*;
-import byx.util.jdbc.exception.DbException;
-
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
@@ -23,22 +20,6 @@ public class JdbcUtils {
         connManager = new ConnectionManager(dataSource);
     }
 
-    /**
-     * 判断当前是否在事务中
-     */
-    public boolean inTransaction() {
-        return connManager.inTransaction();
-    }
-
-    /**
-     * 创建语句
-     *
-     * @param conn   连接
-     * @param sql    sql语句
-     * @param params sql参数
-     * @return 创建的PreparedStatement对象
-     * @throws SQLException 来自JDBC的异常
-     */
     private PreparedStatement createPreparedStatement(Connection conn, String sql, Object... params) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(sql);
         for (int i = 0; i < params.length; ++i) {
@@ -53,15 +34,15 @@ public class JdbcUtils {
      * 用户也可使用预定义的结果集转换器。
      *
      * @param sql          sql语句
-     * @param recordMapper 结果集转换器
+     * @param resultMapper 结果集转换器
      * @param params       sql参数
      * @param <T>          resultSetMapper返回的结果类型
      * @return 成功则返回转换结果，失败则抛出DbException，结果为空则返回空列表
-     * @see RecordMapper
-     * @see ListRecordMapper
-     * @see SingleRowRecordMapper
+     * @see ResultMapper
+     * @see ListResultMapper
+     * @see SingleRowResultMapper
      */
-    public <T> T query(String sql, RecordMapper<T> recordMapper, Object... params) {
+    public <T> T query(String sql, ResultMapper<T> resultMapper, Object... params) {
         ResultSet rs = null;
         PreparedStatement stmt = null;
         Connection conn = null;
@@ -69,8 +50,8 @@ public class JdbcUtils {
             conn = connManager.getConnection();
             stmt = createPreparedStatement(conn, sql, params);
             rs = stmt.executeQuery();
-            return recordMapper.map(new RecordAdapterForResultSet(rs));
-        } catch (Exception e) {
+            return resultMapper.map(rs);
+        } catch (SQLException e) {
             throw new DbException(e.getMessage(), e);
         } finally {
             connManager.close(conn, stmt, rs);
@@ -93,7 +74,7 @@ public class JdbcUtils {
      * @see SingleColumnRowMapper
      */
     public <T> List<T> queryList(String sql, RowMapper<T> rowMapper, Object... params) {
-        return query(sql, new ListRecordMapper<>(rowMapper), params);
+        return query(sql, new ListResultMapper<>(rowMapper), params);
     }
 
     /**
@@ -106,7 +87,7 @@ public class JdbcUtils {
      * @return 成功则返回结果列表，失败则抛出DbException，结果为空则返回空列表
      */
     public <T> List<T> queryList(String sql, Class<T> type, Object... params) {
-        return query(sql, new ListRecordMapper<>(new BeanRowMapper<>(type)), params);
+        return query(sql, new ListResultMapper<>(new BeanRowMapper<>(type)), params);
     }
 
     /**
@@ -119,7 +100,7 @@ public class JdbcUtils {
      * @return 成功则返回结果值，失败则抛出DbException，结果为空则返回null
      */
     public <T> T querySingleValue(String sql, Object... params) {
-        return query(sql, new SingleRowRecordMapper<>(new SingleColumnRowMapper<>()), params);
+        return query(sql, new SingleRowResultMapper<>(new SingleColumnRowMapper<>()), params);
     }
 
     /**
@@ -139,7 +120,7 @@ public class JdbcUtils {
      * @see SingleColumnRowMapper
      */
     public <T> T querySingleRow(String sql, RowMapper<T> rowMapper, Object... params) {
-        return query(sql, new SingleRowRecordMapper<>(rowMapper), params);
+        return query(sql, new SingleRowResultMapper<>(rowMapper), params);
     }
 
     /**
@@ -196,5 +177,12 @@ public class JdbcUtils {
      */
     public void rollback() {
         connManager.rollback();
+    }
+
+    /**
+     * 判断当前是否在事务中
+     */
+    public boolean inTransaction() {
+        return connManager.inTransaction();
     }
 }

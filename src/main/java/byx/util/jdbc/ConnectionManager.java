@@ -1,6 +1,4 @@
-package byx.util.jdbc.core;
-
-import byx.util.jdbc.exception.DbException;
+package byx.util.jdbc;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -9,10 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * 连接管理器
- * 封装了线程安全的数据库连接
- *
- * @author byx
+ * 线程安全的连接管理器
  */
 public final class ConnectionManager {
     private final DataSource dataSource;
