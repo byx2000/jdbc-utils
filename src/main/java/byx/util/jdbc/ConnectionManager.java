@@ -17,6 +17,9 @@ public final class ConnectionManager {
         this.dataSource = dataSource;
     }
 
+    /**
+     * 获取连接
+     */
     public Connection getConnection() {
         try {
             Connection conn = connHolder.get();
@@ -26,24 +29,13 @@ public final class ConnectionManager {
             }
             return conn;
         } catch (SQLException e) {
-            throw new DbException("An error occurred while creating a database connection.", e);
+            throw new DbException("error when get database connection", e);
         }
     }
 
-    public void close(Connection conn, Statement stmt) {
-        if (stmt != null) {
-            try { stmt.close(); } catch (SQLException ignored) {}
-        }
-        if (conn != null) {
-            try {
-                if (conn.getAutoCommit()) {
-                    conn.close();
-                    connHolder.remove();
-                }
-            } catch (SQLException ignored) {}
-        }
-    }
-
+    /**
+     * 资源释放
+     */
     public void close(Connection conn, Statement stmt, ResultSet rs) {
         if (rs != null) {
             try { rs.close(); } catch (SQLException ignored) {}
@@ -61,6 +53,9 @@ public final class ConnectionManager {
         }
     }
 
+    /**
+     * 在当前连接上开启事务
+     */
     public void startTransaction() {
         try {
             Connection conn = connHolder.get();
@@ -72,10 +67,13 @@ public final class ConnectionManager {
             conn.setAutoCommit(false);
             connHolder.set(conn);
         } catch (SQLException e) {
-            throw new DbException("An error occurred while starting transaction.", e);
+            throw new DbException("error when start transaction", e);
         }
     }
 
+    /**
+     * 在当前连接上提交事务
+     */
     public void commit() {
         Connection conn = connHolder.get();
         if (conn != null) {
@@ -84,11 +82,14 @@ public final class ConnectionManager {
                 conn.close();
                 connHolder.remove();
             } catch (SQLException e) {
-                throw new DbException("An error occurred while committing transaction.", e);
+                throw new DbException("error when commit transaction", e);
             }
         }
     }
 
+    /**
+     * 在当前连接上回滚事务
+     */
     public void rollback() {
         Connection conn = connHolder.get();
         if (conn != null) {
@@ -97,17 +98,20 @@ public final class ConnectionManager {
                 conn.close();
                 connHolder.remove();
             } catch (SQLException e) {
-                throw new DbException("An error occurred while committing transaction.", e);
+                throw new DbException("error when rollback transaction", e);
             }
         }
     }
 
+    /**
+     * 判断当前连接是否在事务中
+     */
     public boolean inTransaction() {
         Connection conn = connHolder.get();
         try {
             return conn != null && !conn.getAutoCommit();
         } catch (SQLException e) {
-            throw new DbException("An error occurred while getting auto commit.", e);
+            throw new DbException("error when get transaction status", e);
         }
     }
 }

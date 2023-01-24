@@ -154,7 +154,7 @@ public class JdbcUtils {
         } catch (Exception e) {
             throw new DbException(e.getMessage(), e);
         } finally {
-            connManager.close(conn, stmt);
+            connManager.close(conn, stmt, null);
         }
     }
 
