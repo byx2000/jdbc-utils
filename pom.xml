@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>byx.util</groupId>
-    <artifactId>JdbcUtils</artifactId>
+    <artifactId>jdbc-utils</artifactId>
     <version>1.0.0</version>
 
     <properties>
